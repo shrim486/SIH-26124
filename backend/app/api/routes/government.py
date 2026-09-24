@@ -25,11 +25,6 @@ class GovernmentLoginRequest(BaseModel):
     password: str
 
 
-@router.options("/login")
-def government_login_options():
-    return {}
-
-
 @router.post("/login")
 def government_login(data: GovernmentLoginRequest):
 
@@ -162,55 +157,3 @@ def get_map_events(
     from app.services.event_service import get_map_events
 
     return get_map_events(db)
-
-
-# ============================================================
-# VIOLATIONS
-# ============================================================
-
-@router.get("/violations")
-def get_violations(
-    status: str = None,
-    db=Depends(get_db),
-    authority=Depends(require_government_authority),
-):
-    from app.services.event_service import get_violations
-
-    return get_violations(db, status=status)
-
-
-# ============================================================
-# ROAD ISSUE STATUS UPDATE
-# ============================================================
-
-class StatusUpdateRequest(BaseModel):
-    status: str
-
-
-@router.patch("/road-issues/{issue_id}/status")
-def patch_road_issue_status(
-    issue_id: int,
-    data: StatusUpdateRequest,
-    db=Depends(get_db),
-    authority=Depends(require_government_authority),
-):
-    from app.services.event_service import update_road_issue_status
-
-    result = update_road_issue_status(db, issue_id, data.status)
-    if not result:
-        raise HTTPException(status_code=404, detail="Road issue not found")
-    return result
-
-
-# ============================================================
-# ANALYTICS
-# ============================================================
-
-@router.get("/analytics")
-def get_analytics(
-    db=Depends(get_db),
-    authority=Depends(require_government_authority),
-):
-    from app.services.event_service import get_analytics
-
-    return get_analytics(db)

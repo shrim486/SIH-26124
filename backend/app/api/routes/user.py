@@ -1,5 +1,4 @@
 from math import radians, sin, cos, sqrt, atan2
-from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
@@ -156,6 +155,7 @@ def get_user_map_events(
             "timestamp": event.timestamp,
             "bus_id": event.bus_id,
             "camera_id": event.camera_id,
+            "registration_number": event.registration_number,
             "severity": event.severity,
             "status": event.status,
             "event_metadata": event.event_metadata,
@@ -330,75 +330,3 @@ def create_user_route(
         "traffic_score": 0.32,
         "hazard_score": 0.12,
     }
-
-
-# ============================================================
-# CITIZEN REPORTS
-# ============================================================
-
-class CitizenReportRequest(BaseModel):
-    event_type: str
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
-    severity: str = "medium"
-    description: Optional[str] = None
-
-
-@router.post("/reports", status_code=status.HTTP_200_OK)
-def create_citizen_report(
-    report: CitizenReportRequest,
-    db: Session = Depends(get_db),
-):
-    from app.schemas.event import EventCreate
-    from app.services.event_service import create_event
-
-    data = EventCreate(
-        event_type=report.event_type,
-        latitude=report.latitude,
-        longitude=report.longitude,
-        severity=report.severity,
-        metadata={
-            "description": report.description,
-            "source": "citizen_report",
-        }
-        if report.description
-        else {"source": "citizen_report"},
-    )
-    result = create_event(db, data)
-    return {
-        "success": True,
-        "message": "Report submitted successfully",
-        "event_id": (
-            result["event"].id
-            if result and "event" in result
-            else None
-        ),
-    }
-
-
-@router.get("/reports")
-def get_citizen_reports(
-    db: Session = Depends(get_db),
-):
-    reports = (
-        db.query(Event)
-        .order_by(Event.timestamp.desc())
-        .limit(50)
-        .all()
-    )
-    return [
-        {
-            "id": r.id,
-            "event_type": r.event_type,
-            "latitude": r.latitude,
-            "longitude": r.longitude,
-            "severity": r.severity,
-            "status": r.status,
-            "timestamp": (
-                r.timestamp.isoformat()
-                if r.timestamp
-                else None
-            ),
-        }
-        for r in reports
-    ]
