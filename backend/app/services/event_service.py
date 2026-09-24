@@ -122,6 +122,22 @@ def create_event(db, data):
             key=lambda value: SEVERITY_ORDER.get(value, 0),
         )
         duplicate_event.timestamp = max(duplicate_event.timestamp or timestamp, timestamp)
+
+        dup_meta = {}
+        if duplicate_event.event_metadata:
+            try:
+                dup_meta = json.loads(duplicate_event.event_metadata) if isinstance(duplicate_event.event_metadata, str) else dict(duplicate_event.event_metadata)
+            except Exception:
+                dup_meta = {}
+        dup_meta["sighting_count"] = dup_meta.get("sighting_count", 1) + 1
+        if data.bus_id:
+            sources = set(dup_meta.get("source_buses", []))
+            if duplicate_event.bus_id:
+                sources.add(duplicate_event.bus_id)
+            sources.add(data.bus_id)
+            dup_meta["source_buses"] = sorted(list(sources))
+        duplicate_event.event_metadata = json.dumps(dup_meta)
+
         db.commit()
         db.refresh(duplicate_event)
         return {"event": duplicate_event, "category": category, "duplicate": True, "status": "existing"}
@@ -503,6 +519,164 @@ def get_fleet(db):
         }
 
 
+def get_violations(db, status: str = None):
+    query = db.query(Violation).order_by(Violation.timestamp.desc())
+    if status and status != "all":
+        query = query.filter(Violation.status == status)
+    violations = query.all()
+
+    return [
+        {
+            "id": v.id,
+            "violation_type": v.violation_type,
+            "registration_number": v.registration_number,
+            "confidence": v.confidence,
+            "latitude": v.latitude,
+            "longitude": v.longitude,
+            "timestamp": (
+                v.timestamp.isoformat()
+                if v.timestamp
+                else None
+            ),
+            "bus_id": v.bus_id,
+            "status": v.status,
+        }
+        for v in violations
+    ]
+
+
+def update_road_issue_status(db, issue_id: int, new_status: str):
+    issue = db.query(RoadIssue).filter(RoadIssue.id == issue_id).first()
+    if not issue:
+        return None
+    issue.status = new_status
+    issue.last_detected = datetime.utcnow()
+    db.commit()
+    db.refresh(issue)
+    return {
+        "id": issue.id,
+        "issue_type": issue.issue_type,
+        "latitude": issue.latitude,
+        "longitude": issue.longitude,
+        "confidence": issue.confidence,
+        "severity": issue.severity,
+        "status": issue.status,
+        "first_detected": (
+            issue.first_detected.isoformat()
+            if issue.first_detected
+            else None
+        ),
+        "last_detected": (
+            issue.last_detected.isoformat()
+            if issue.last_detected
+            else None
+        ),
+    }
+
+
+def get_analytics(db):
+    from sqlalchemy import func
+
+    total_events = db.query(Event).count()
+    total_road_issues = db.query(RoadIssue).count()
+    open_issues = (
+        db.query(RoadIssue)
+        .filter(RoadIssue.status == "open")
+        .count()
+    )
+    in_progress_issues = (
+        db.query(RoadIssue)
+        .filter(RoadIssue.status == "in_progress")
+        .count()
+    )
+    resolved_issues = (
+        db.query(RoadIssue)
+        .filter(RoadIssue.status == "resolved")
+        .count()
+    )
+
+    total_violations = db.query(Violation).count()
+    pending_violations = (
+        db.query(Violation)
+        .filter(Violation.status == "pending")
+        .count()
+    )
+    total_accidents = (
+        db.query(Event)
+        .filter(Event.event_type == "accident")
+        .count()
+    )
+    total_alerts = db.query(Alert).count()
+
+    event_counts = (
+        db.query(Event.event_type, func.count(Event.id))
+        .group_by(Event.event_type)
+        .all()
+    )
+    events_by_type = {etype: count for etype, count in event_counts}
+
+    issue_severities = (
+        db.query(RoadIssue.severity, func.count(RoadIssue.id))
+        .group_by(RoadIssue.severity)
+        .all()
+    )
+    issues_by_severity = {
+        sev or "unknown": count for sev, count in issue_severities
+    }
+
+    violation_counts = (
+        db.query(Violation.violation_type, func.count(Violation.id))
+        .group_by(Violation.violation_type)
+        .all()
+    )
+    violations_by_type = {
+        vtype: count for vtype, count in violation_counts
+    }
+
+    fleet_info = get_fleet(db)
+
+    recent_events = (
+        db.query(Event)
+        .order_by(Event.timestamp.desc())
+        .limit(10)
+        .all()
+    )
+
+    return {
+        "summary": {
+            "total_events": total_events,
+            "total_road_issues": total_road_issues,
+            "open_issues": open_issues,
+            "in_progress_issues": in_progress_issues,
+            "resolved_issues": resolved_issues,
+            "total_violations": total_violations,
+            "pending_violations": pending_violations,
+            "total_accidents": total_accidents,
+            "total_alerts": total_alerts,
+            "total_buses": fleet_info.get("total_buses", 0),
+            "total_cameras": fleet_info.get("total_cameras", 0),
+        },
+        "events_by_type": events_by_type,
+        "issues_by_severity": issues_by_severity,
+        "violations_by_type": violations_by_type,
+        "fleet": fleet_info,
+        "recent_activity": [
+            {
+                "id": ev.id,
+                "event_type": ev.event_type,
+                "severity": ev.severity,
+                "status": ev.status,
+                "timestamp": (
+                    ev.timestamp.isoformat()
+                    if ev.timestamp
+                    else None
+                ),
+            }
+            for ev in recent_events
+        ],
+    }
+
+
 def get_dashboard(db):
     statistics = get_statistics(db)
     events = get_map_events(db)
@@ -510,6 +684,7 @@ def get_dashboard(db):
     alerts = get_alerts(db)
     accidents = get_accidents(db)
     fleet = get_fleet(db)
+    violations = get_violations(db)
 
     return {
         "statistics": statistics,
@@ -524,8 +699,8 @@ def get_dashboard(db):
         "recent_alerts": alerts[:20],
         "alerts": alerts,
 
-        "recent_violations": [],
-        "violations": [],
+        "recent_violations": violations[:20],
+        "violations": violations,
 
         "accidents": accidents,
 
