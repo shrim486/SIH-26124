@@ -9,7 +9,12 @@ VALID_EVENT_TYPES = {
     "waterlogging",
     "accident",
     "traffic_violation",
+    "helmet_violation",
+    "triple_riding",
+    "rash_driving",
     "traffic_bottleneck",
+    "high_vehicle_density",
+    "pedestrian_risk",
     "road_damage",
     "missing_divider",
     "missing_zebra_crossing",
@@ -17,7 +22,6 @@ VALID_EVENT_TYPES = {
     "vulnerable_pedestrian",
     "other",
 }
-
 
 class EventCreate(BaseModel):
     event_type: str
