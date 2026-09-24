@@ -1,12 +1,17 @@
 const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
-
 /* ============================================================
    GENERIC API REQUEST
 ============================================================ */
 
-async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem("government_token");
+async function apiRequest(
+  endpoint,
+  options = {},
+  tokenKey = null
+) {
+  const token = tokenKey
+    ? localStorage.getItem(tokenKey)
+    : null;
 
   const headers = {
     "Content-Type": "application/json",
@@ -35,12 +40,15 @@ async function apiRequest(endpoint, options = {}) {
         message = errorData.detail;
       }
     } catch {
-      // Ignore invalid JSON
+      // Ignore invalid JSON response
     }
 
-    if (response.status === 401) {
-      localStorage.removeItem("government_token");
-      localStorage.removeItem("government_role");
+    if (response.status === 401 && tokenKey) {
+      localStorage.removeItem(tokenKey);
+
+      if (tokenKey === "government_token") {
+        localStorage.removeItem("government_role");
+      }
     }
 
     throw new Error(message);
@@ -59,11 +67,6 @@ async function apiRequest(endpoint, options = {}) {
 ============================================================ */
 
 export const governmentApi = {
-
-  /* ============================================================
-     LOGIN
-  ============================================================ */
-
   login: async (username, password) => {
     const response = await fetch(
       `${API_BASE_URL}/government/login`,
@@ -114,117 +117,78 @@ export const governmentApi = {
     return data;
   },
 
-
-  /* ============================================================
-     LOGOUT
-  ============================================================ */
-
   logout: () => {
     localStorage.removeItem("government_token");
     localStorage.removeItem("government_role");
   },
 
-
-  /* ============================================================
-     AUTH CHECK
-  ============================================================ */
-
-  isAuthenticated: () => {
-    return Boolean(
+  isAuthenticated: () =>
+    Boolean(
       localStorage.getItem("government_token")
-    );
-  },
+    ),
 
+  getDashboard: async () =>
+    apiRequest(
+      "/government/dashboard",
+      {},
+      "government_token"
+    ),
 
-  /* ============================================================
-     GOVERNMENT DASHBOARD
-  ============================================================ */
+  getStatistics: async () =>
+    apiRequest(
+      "/government/statistics",
+      {},
+      "government_token"
+    ),
 
-  getDashboard: async () => {
-    return apiRequest(
-      "/government/dashboard"
-    );
-  },
+  getEvents: async () =>
+    apiRequest(
+      "/government/map-events",
+      {},
+      "government_token"
+    ),
 
+  getMapEvents: async () =>
+    apiRequest(
+      "/government/map-events",
+      {},
+      "government_token"
+    ),
 
-  getStatistics: async () => {
-    return apiRequest(
-      "/government/statistics"
-    );
-  },
+  getAlerts: async () =>
+    apiRequest(
+      "/government/alerts",
+      {},
+      "government_token"
+    ),
 
+  getRoadIssues: async () =>
+    apiRequest(
+      "/government/road-issues",
+      {},
+      "government_token"
+    ),
 
-  /* ============================================================
-     MAP
-  ============================================================ */
+  getAccidents: async () =>
+    apiRequest(
+      "/government/accidents",
+      {},
+      "government_token"
+    ),
 
-  getEvents: async () => {
-    return apiRequest(
-      "/government/map-events"
-    );
-  },
+  getFleet: async () =>
+    apiRequest(
+      "/government/fleet",
+      {},
+      "government_token"
+    ),
 
-
-  getMapEvents: async () => {
-    return apiRequest(
-      "/government/map-events"
-    );
-  },
-
-
-  /* ============================================================
-     ALERTS
-  ============================================================ */
-
-  getAlerts: async () => {
-    return apiRequest(
-      "/government/alerts"
-    );
-  },
-
-
-  /* ============================================================
-     ROAD ISSUES
-  ============================================================ */
-
-  getRoadIssues: async () => {
-    return apiRequest(
-      "/government/road-issues"
-    );
-  },
-
-
-  /* ============================================================
-     ACCIDENTS
-  ============================================================ */
-
-  getAccidents: async () => {
-    return apiRequest(
-      "/government/accidents"
-    );
-  },
-
-
-  /* ============================================================
-     FLEET
-  ============================================================ */
-
-  getFleet: async () => {
-    return apiRequest(
-      "/government/fleet"
-    );
-  },
-
-
-  /* ============================================================
-     ANALYTICS
-  ============================================================ */
-
-  getAnalytics: async () => {
-    return apiRequest(
-      "/government/analytics"
-    );
-  },
+  getAnalytics: async () =>
+    apiRequest(
+      "/government/analytics",
+      {},
+      "government_token"
+    ),
 };
 
 
@@ -232,15 +196,42 @@ export const governmentApi = {
    CITIZEN API
 ============================================================ */
 
-/*
-   IMPORTANT:
+export const userApi = {
+  getDashboard: async () =>
+    apiRequest("/user/dashboard"),
 
-   Your current UserDashboard is using userApi.
+  getMapEvents: async () =>
+    apiRequest("/user/map-events"),
 
-   For now, keep this alias so your existing citizen pages
-   do not immediately break.
-*/
+  getAlerts: async () =>
+    apiRequest("/user/alerts"),
 
-export const userApi = governmentApi;
+  getNearbyAlerts: async (
+    latitude,
+    longitude,
+    radius_km = 5
+  ) =>
+    apiRequest(
+      `/user/nearby-alerts?latitude=${encodeURIComponent(
+        latitude
+      )}&longitude=${encodeURIComponent(
+        longitude
+      )}&radius_km=${encodeURIComponent(
+        radius_km
+      )}`
+    ),
 
-export default governmentApi;
+  getReports: async () =>
+    apiRequest("/user/reports"),
+
+  reportIssue: async (payload) =>
+    apiRequest(
+      "/user/reports",
+      {
+        method: "POST",
+        body: payload,
+      }
+    ),
+};
+
+export default userApi;
