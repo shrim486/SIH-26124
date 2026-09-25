@@ -1,0 +1,104 @@
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.routes import (
+    auth,
+    events,
+    government,
+    routes,
+    traffic,
+    user,
+)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    from app.db.database import Base, engine, ensure_sqlite_schema_compatibility
+    from app import models
+    Base.metadata.create_all(bind=engine)
+    ensure_sqlite_schema_compatibility()
+    yield
+
+
+app = FastAPI(
+    title="UrbanIQ API",
+    description="Urban Intelligence Platform API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+
+# ============================================================
+# CORS
+# ============================================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+        "http://127.0.0.1:5175",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ============================================================
+# API ROUTES
+# ============================================================
+
+API_PREFIX = "/api/v1"
+
+app.include_router(
+    auth.router,
+    prefix=API_PREFIX,
+)
+
+app.include_router(
+    events.router,
+    prefix=API_PREFIX,
+)
+
+app.include_router(
+    government.router,
+    prefix=API_PREFIX,
+)
+
+app.include_router(
+    routes.router,
+    prefix=API_PREFIX,
+)
+
+app.include_router(
+    traffic.router,
+    prefix=API_PREFIX,
+)
+
+app.include_router(
+    user.router,
+    prefix=API_PREFIX,
+)
+
+
+# ============================================================
+# ROOT / HEALTH
+# ============================================================
+
+@app.get("/")
+def root():
+    return {
+        "message": "UrbanIQ API is running",
+        "status": "online",
+    }
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+    }

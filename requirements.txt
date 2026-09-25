@@ -1,0 +1,2 @@
+-r backend/requirements.txt
+-r edge_ai/requirements-video-demo.txt

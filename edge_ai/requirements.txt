@@ -1,0 +1,8 @@
+ultralytics==8.4.161
+opencv-python==5.0.0.93
+numpy==2.2.6
+matplotlib==3.10.9
+PyYAML==6.0.3
+Pillow==12.3.0
+pandas>=2.2,<3
+tqdm>=4.66,<5

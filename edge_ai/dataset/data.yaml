@@ -1,0 +1,7 @@
+# Paths are resolved relative to this YAML by the project scripts.
+train: train/images
+val: valid/images
+test: test/images
+nc: 1
+names:
+  0: pothole

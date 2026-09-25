@@ -1,0 +1,19 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+
+# Database
+sqlalchemy
+psycopg2-binary
+
+# Authentication / security
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Environment / forms
+python-dotenv
+python-multipart
+
+# HTTP / async support
+httpx

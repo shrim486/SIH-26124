@@ -1,0 +1,13 @@
+{
+  "source": "https://huggingface.co/peterhdd/pothole-detection-yolov8",
+  "revision": "da7747eea7abb4319a0f55961f31809a16c1b10a",
+  "download_url": "https://huggingface.co/peterhdd/pothole-detection-yolov8/resolve/da7747eea7abb4319a0f55961f31809a16c1b10a/best.onnx",
+  "path": "pothole_detection\\models\\pothole_public_yolov8s.onnx",
+  "bytes": 44746345,
+  "sha256": "91dd7de7a110c61314ea19a958fcc85c7b3461cc6d60d87fefc08b41ac6e32c5",
+  "purpose": "Public pretrained model for online video demonstration; not trained or accuracy-validated locally.",
+  "normalized_path": "pothole_detection\\models\\pothole_public_yolov8s_labeled.onnx",
+  "normalized_sha256": "551b82c3a26072e0c4426e8c6f35eb7d00c29a507e18e07368b3ccf4306f9ecf",
+  "metadata_change": "names: {0: '0'} -> {0: 'pothole'}; graph and tensors unchanged",
+  "class_mapping_evidence": "https://huggingface.co/peterhdd/pothole-detection-yolov8 (model card: 1 class, pothole)"
+}

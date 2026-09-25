@@ -1,0 +1,77 @@
+# Python and local tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+.coverage
+htmlcov/
+*.egg-info/
+edge_ai/.ultralytics/
+
+# Generated inference, training, and evaluation artifacts
+edge_ai/outputs/
+edge_ai/runs/
+
+# Raw and converted datasets are stored outside the source repository
+edge_ai/dataset/**/raw/
+edge_ai/dataset/**/train/images/*
+edge_ai/dataset/**/train/labels/*
+edge_ai/dataset/**/valid/images/*
+edge_ai/dataset/**/valid/labels/*
+edge_ai/dataset/**/test/images/*
+edge_ai/dataset/**/test/labels/*
+!edge_ai/dataset/**/train/images/.gitkeep
+!edge_ai/dataset/**/train/labels/.gitkeep
+!edge_ai/dataset/**/valid/images/.gitkeep
+!edge_ai/dataset/**/valid/labels/.gitkeep
+!edge_ai/dataset/**/test/images/.gitkeep
+!edge_ai/dataset/**/test/labels/.gitkeep
+
+# Local video inputs and previews; use Git LFS or external storage intentionally
+edge_ai/test_videos/**/*.mp4
+edge_ai/test_videos/**/*.avi
+edge_ai/test_videos/**/*.mov
+edge_ai/test_videos/**/*.mkv
+
+# Model binaries; keep model READMEs and configs in Git, store weights with LFS/releases
+*.pt
+*.onnx
+*.engine
+*.ckpt
+
+# Local secrets and OS/editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.log
+*.pid
+*.zip
+*.tar
+*.gz
+*.pem
+*.key
+.vscode/
+.idea/
+.claude/
+.codex/
+.restructure_backup/
+# Local migration notes and historical machine-specific reports
+docs/migration/
+docs/requested-layout.*
+docs/detection/
+edge_ai/test_images/*
+!edge_ai/test_images/.gitkeep
+edge_ai/test_videos/**
+!edge_ai/test_videos/.gitkeep
+.runtime/
+**/node_modules/
+**/dist/

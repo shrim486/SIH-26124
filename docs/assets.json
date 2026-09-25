@@ -1,0 +1,20 @@
+[
+  {
+    "path": "edge_ai/models/road_hazards/pothole/best.onnx",
+    "bytes": 13288030,
+    "sha256": "a8553eb1dd0113fa8d7c8985e21f3a50f8ee641e2fa2a4efc93b14c93932fc5b",
+    "source": "https://huggingface.co/subhodeepmoitra/pothole-detection-yolov8/tree/f829c25ade58a613e4a54ccc3c9759fc82b9e292"
+  },
+  {
+    "path": "edge_ai/models/road_hazards/damaged_road/best.pt",
+    "bytes": 18966618,
+    "sha256": "ccf91e3199d81ee761f4a3a012da752939c9d72e9b1eaa242e508db3163270a0",
+    "source": null
+  },
+  {
+    "path": "edge_ai/test_videos/dashcam/candidate.mp4",
+    "bytes": 2652799,
+    "sha256": "1866cfd4acd1108c80c6bb4ee71c60f058976475f5ab2dd0be9988caed25dfcf",
+    "source": "https://github.com/Rajarshisaha10/Pothole_detection_YOLO/blob/main/assets/sample_video_before.mp4"
+  }
+]
