@@ -75,3 +75,8 @@ edge_ai/test_videos/**
 .runtime/
 **/node_modules/
 **/dist/
+
+# Waterlogging prototype model and demo videos
+!models/best.pt
+!videos/waterlogging.mp4
+!videos/waterlogging_ai_output.mp4
