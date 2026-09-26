@@ -1,52 +1,43 @@
 import cv2
-from detector import WaterloggingDetector
+
+from edge_ai.waterlogging.detector import WaterloggingDetector
 
 
-video_path = "videos/waterlogging.mp4"
+def test_detector_loads_model():
 
-detector = WaterloggingDetector(
-    model_path="models/best.pt",
-    confidence_threshold=0.25
-)
+    detector = WaterloggingDetector(
+        model_path="models/best.pt",
+        confidence_threshold=0.25
+    )
 
-cap = cv2.VideoCapture(video_path)
+    assert detector.model is not None
 
-if not cap.isOpened():
-    print("ERROR: Could not open video.")
-    exit()
 
-print("Video opened successfully.")
+def test_detector_processes_video_frame():
 
-frame_number = 0
-detections_found = 0
+    video_path = "videos/waterlogging.mp4"
 
-while True:
+    detector = WaterloggingDetector(
+        model_path="models/best.pt",
+        confidence_threshold=0.25
+    )
+
+    cap = cv2.VideoCapture(video_path)
+
+    assert cap.isOpened()
 
     ret, frame = cap.read()
 
-    if not ret:
-        break
+    cap.release()
 
-    # Test every 30th frame
-    if frame_number % 30 == 0:
+    assert ret is True
+    assert frame is not None
 
-        detections = detector.detect(frame)
+    detections = detector.detect(frame)
 
-        print(
-            f"Frame {frame_number}: "
-            f"{len(detections)} detection(s)"
-        )
+    assert isinstance(detections, list)
 
-        for detection in detections:
-            print("   ", detection)
-
-            detections_found += 1
-
-    frame_number += 1
-
-cap.release()
-
-print()
-print("Test completed.")
-print("Total frames checked:", frame_number // 30 + 1)
-print("Total detection results:", detections_found)
+    for detection in detections:
+        assert detection["event_type"] == "waterlogging"
+        assert 0 <= detection["confidence"] <= 1
+        assert len(detection["bbox"]) == 4

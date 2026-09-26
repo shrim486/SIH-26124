@@ -1,60 +1,52 @@
-from video_reader import read_video
-from detector import WaterloggingDetector
-from alert_manager import AlertManager
+from edge_ai.waterlogging.alert_manager import AlertManager
+from edge_ai.waterlogging.detector import WaterloggingDetector
+from edge_ai.waterlogging.gps import SimulatedGPS
 
 
-VIDEO_PATH = "videos/waterlogging.mp4"
+def test_waterlogging_pipeline_components():
+
+    detector = WaterloggingDetector(
+        model_path="models/best.pt",
+        confidence_threshold=0.25
+    )
+
+    alert_manager = AlertManager(
+        required_detections=2,
+        cooldown_frames=30,
+        bus_id="BUS_01"
+    )
+
+    gps = SimulatedGPS()
+
+    assert detector.model is not None
+    assert alert_manager.bus_id == "BUS_01"
+
+    location = gps.get_location(0)
+
+    assert "latitude" in location
+    assert "longitude" in location
 
 
-detector = WaterloggingDetector(
-    model_path="models/best.pt",
-    confidence_threshold=0.25
-)
+def test_pipeline_alert_generation():
 
-alert_manager = AlertManager(
-    required_detections=2,
-    cooldown_frames=30,
-    bus_id="BUS_01"
-)
+    alert_manager = AlertManager(
+        required_detections=2,
+        cooldown_frames=30,
+        bus_id="BUS_01"
+    )
 
+    detection = [{
+        "event_type": "waterlogging",
+        "confidence": 0.85,
+        "bbox": [100, 200, 500, 400]
+    }]
 
-frame_count = 0
-alert_count = 0
+    assert alert_manager.process_detection(detection) is None
 
+    alert = alert_manager.process_detection(detection)
 
-def process_frame(frame, frame_number):
-
-    global frame_count
-    global alert_count
-
-    frame_count += 1
-
-    detections = detector.detect(frame)
-
-    alert = alert_manager.process_detection(detections)
-
-    if alert is not None:
-
-        alert_count += 1
-
-        print()
-        print("========================================")
-        print("VALIDATED ALERT")
-        print("========================================")
-        print(alert)
-
-
-print("Starting Edge AI pipeline test...")
-print()
-
-read_video(
-    VIDEO_PATH,
-    process_frame
-)
-
-print()
-print("========================================")
-print("PIPELINE TEST COMPLETED")
-print("========================================")
-print("Frames processed:", frame_count)
-print("Alerts generated:", alert_count)
+    assert alert is not None
+    assert alert["event_type"] == "waterlogging"
+    assert alert["bus_id"] == "BUS_01"
+    assert alert["severity"] == "medium"
+    assert alert["status"] == "open"

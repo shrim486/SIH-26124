@@ -1,70 +1,58 @@
-from video_reader import read_video
-from detector import WaterloggingDetector
-from alert_manager import AlertManager
-from gps import SimulatedGPS
+from edge_ai.waterlogging.alert_manager import AlertManager
+from edge_ai.waterlogging.gps import SimulatedGPS
 
 
-VIDEO_PATH = "videos/waterlogging.mp4"
+def make_detection(confidence):
+    return [{
+        "event_type": "waterlogging",
+        "confidence": confidence,
+        "bbox": [100, 200, 500, 400]
+    }]
 
 
-detector = WaterloggingDetector(
-    model_path="models/best.pt",
-    confidence_threshold=0.25
-)
+def test_gps_returns_location():
 
-alert_manager = AlertManager(
-    required_detections=2,
-    cooldown_frames=30,
-    bus_id="BUS_01"
-)
+    gps = SimulatedGPS()
 
-gps = SimulatedGPS()
+    location = gps.get_location(0)
 
+    assert "latitude" in location
+    assert "longitude" in location
 
-frame_count = 0
-alert_count = 0
+    assert isinstance(location["latitude"], float)
+    assert isinstance(location["longitude"], float)
 
 
-def process_frame(frame, frame_number):
+def test_gps_location_changes_with_frame():
 
-    global frame_count
-    global alert_count
+    gps = SimulatedGPS()
 
-    frame_count += 1
+    location1 = gps.get_location(0)
+    location2 = gps.get_location(100)
 
-    detections = detector.detect(frame)
-
-    alert = alert_manager.process_detection(detections)
-
-    if alert is not None:
-
-        alert_count += 1
-
-        location = gps.get_location(frame_number)
-
-        alert["latitude"] = location["latitude"]
-        alert["longitude"] = location["longitude"]
-
-        print()
-        print("========================================")
-        print("GPS-INTEGRATED ALERT")
-        print("========================================")
-        print(alert)
+    assert location1 != location2
 
 
-if __name__ == "__main__":
+def test_alert_can_receive_gps_coordinates():
 
-    print("Starting GPS-integrated pipeline test...")
-    print()
-
-    read_video(
-        VIDEO_PATH,
-        process_frame
+    manager = AlertManager(
+        required_detections=1,
+        cooldown_frames=0,
+        bus_id="BUS_01"
     )
 
-    print()
-    print("========================================")
-    print("GPS PIPELINE TEST COMPLETED")
-    print("========================================")
-    print("Frames processed:", frame_count)
-    print("Alerts generated:", alert_count)
+    gps = SimulatedGPS()
+
+    alert = manager.process_detection(
+        make_detection(0.85)
+    )
+
+    assert alert is not None
+
+    location = gps.get_location(100)
+
+    alert["latitude"] = location["latitude"]
+    alert["longitude"] = location["longitude"]
+
+    assert alert["latitude"] == location["latitude"]
+    assert alert["longitude"] == location["longitude"]
