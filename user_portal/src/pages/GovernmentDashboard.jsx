@@ -16,10 +16,12 @@ import {
   X,
   Truck,
   Clock3,
+  Video,
 } from "lucide-react";
 
 import { governmentApi } from "../api/userApi";
 import IncidentMap from "../components/IncidentMap";
+import VideoAnalysis from "./VideoAnalysis";
 
 
 function StatCard({ icon: Icon, title, value, type }) {
@@ -324,6 +326,11 @@ export default function GovernmentDashboard() {
       label: "Fleet Monitoring",
       icon: Car,
     },
+    {
+      id: "video",
+      label: "Video Analysis",
+      icon: Video,
+    },
   ];
 
 
@@ -350,6 +357,9 @@ export default function GovernmentDashboard() {
 
     fleet:
       "Monitor the public transport fleet connected to the UrbanIQ network.",
+
+    video:
+      "Run motorcycle and helmet detection on a raw traffic video.",
   }[activeView];
 
 
@@ -1155,6 +1165,8 @@ export default function GovernmentDashboard() {
 
           {activeView === "fleet" &&
             renderFleet()}
+
+          {activeView === "video" && <VideoAnalysis />}
 
 
           {/* SYSTEM FOOTER */}

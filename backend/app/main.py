@@ -9,6 +9,7 @@ from app.api.routes import (
     routes,
     traffic,
     user,
+    video_analysis,
 )
 
 
@@ -81,6 +82,11 @@ app.include_router(
 
 app.include_router(
     user.router,
+    prefix=API_PREFIX,
+)
+
+app.include_router(
+    video_analysis.router,
     prefix=API_PREFIX,
 )
 

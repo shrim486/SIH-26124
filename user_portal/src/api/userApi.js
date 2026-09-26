@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
 
 /* ============================================================
    GENERIC API REQUEST
@@ -197,6 +197,27 @@ export const governmentApi = {
 ============================================================ */
 
 export const userApi = {
+  startVideoAnalysis: async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch(`${API_BASE_URL}/video-analysis`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.detail || "Video analysis failed to start");
+    return data;
+  },
+
+  getVideoAnalysis: async (jobId) => {
+    const response = await fetch(`${API_BASE_URL}/video-analysis/${jobId}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.detail || "Could not read video analysis status");
+    return data;
+  },
+
+  videoAnalysisUrl: (jobId) => `${API_BASE_URL}/video-analysis/${jobId}/video`,
+
   getDashboard: async () =>
     apiRequest("/user/dashboard"),
 

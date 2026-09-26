@@ -1,0 +1,1 @@
+"""Motorcycle and helmet detection pipeline."""
