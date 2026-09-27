@@ -8,7 +8,7 @@ Video -> YOLO detection -> confidence filtering -> multi-frame validation -> sim
 
 ## Model
 
-The trained YOLO weights (`best.pt`) are stored outside Git because model binaries are excluded by the repository `.gitignore`.
+The prototype's trained YOLO weights (`best.pt`) are included in Git at the path below. Larger suite weights use the separate asset release.
 
 Expected local model path:
 
@@ -16,7 +16,7 @@ models/best.pt
 
 ## Demo video
 
-The recorded demo video is also kept outside the source repository.
+The recorded input and annotated output video are included in the source repository.
 
 Expected local video path:
 
@@ -25,6 +25,11 @@ videos/waterlogging.mp4
 ## Backend endpoint
 
 POST /api/v1/events/ingest
+
+The client authenticates using `GOVERNMENT_USERNAME` and `GOVERNMENT_PASSWORD`
+from the process environment or the local `backend/.env` created by setup.
+It refreshes an expired session once and never prints the credentials/token.
+It does not claim a registered bus or camera identity for this recorded footage.
 
 ## Event
 

@@ -85,7 +85,9 @@ def check_dataset(data_yaml=DATA_YAML, required_splits=("train", "val", "test"))
                     report["warnings"].append(f"Duplicate image within {split}: {image.name}")
                 else:
                     seen_hashes[digest] = (split, str(image))
-            except (OSError, ValueError) as exc:
+            except (OSError, ValueError, ImportError) as exc:
+                # Ultralytics' Pillow wrapper may try an optional HEIF decoder
+                # for an unreadable file. Report that failure instead of crashing.
                 report["errors"].append(f"Unreadable image {image}: {exc}")
             if not label.is_file():
                 report["errors"].append(f"Missing label: {label}. Use an empty .txt only for a verified negative image.")
