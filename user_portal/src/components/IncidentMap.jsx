@@ -10,6 +10,8 @@ import {
 import L from "leaflet";
 
 import "leaflet/dist/leaflet.css";
+import { sampleText } from '../../../shared/sampleText';
+import { incidentPlace } from '../../../shared/incidentPresentation';
 
 
 /* ============================================================
@@ -44,8 +46,9 @@ const DEFAULT_CENTER = [
    MAP VIEW HELPER
    ============================================================ */
 
-function MapViewController({ events }) {
+function MapViewController({ events, focusId }) {
   const map = useMap();
+  const lastView = React.useRef('');
 
   React.useEffect(() => {
     if (!events || events.length === 0) {
@@ -55,7 +58,7 @@ function MapViewController({ events }) {
 
     const validEvents = events.filter(
       (event) =>
-        Number.isFinite(Number(event.latitude)) &&
+        event.latitude != null && event.longitude != null && Number.isFinite(Number(event.latitude)) &&
         Number.isFinite(Number(event.longitude))
     );
 
@@ -63,6 +66,11 @@ function MapViewController({ events }) {
       map.setView(DEFAULT_CENTER, 12);
       return;
     }
+    const focused = validEvents.find(event => String(event.id) === String(focusId));
+    const viewKey = JSON.stringify([focusId, validEvents.map(event => [event.id, event.latitude, event.longitude])]);
+    if (lastView.current === viewKey) return;
+    lastView.current = viewKey;
+    if (focused) { map.setView([Number(focused.latitude),Number(focused.longitude)],15); return; }
 
     const bounds = L.latLngBounds(
       validEvents.map((event) => [
@@ -76,7 +84,7 @@ function MapViewController({ events }) {
       maxZoom: 15,
     });
 
-  }, [events, map]);
+  }, [events, map, focusId]);
 
   return null;
 }
@@ -89,6 +97,8 @@ function MapViewController({ events }) {
 function getEventColor(type) {
 
   const value = String(type || "").toLowerCase();
+  const colors = {pothole:'#f97316',damaged_road:'#fb923c',road_damage:'#fb923c',waterlogging:'#06b6d4',road_divider:'#64748b',zebra_crossing:'#22c55e',traffic_sign:'#eab308',accident:'#ef4444',number_plate:'#3b82f6',helmet:'#14b8a6',triple_riding:'#ec4899',congestion:'#a855f7',bottleneck:'#8b5cf6'};
+  if (colors[value]) return colors[value];
 
   if (value.includes("accident")) {
     return "#ff4d6d";
@@ -117,11 +127,12 @@ function getEventColor(type) {
 export default function IncidentMap({
   events = [],
   fullScreen = false,
+  focusId = null,
 }) {
 
   const validEvents = events.filter(
     (event) =>
-      Number.isFinite(Number(event.latitude)) &&
+      event.latitude != null && event.longitude != null && Number.isFinite(Number(event.latitude)) &&
       Number.isFinite(Number(event.longitude))
   );
 
@@ -152,15 +163,20 @@ export default function IncidentMap({
         />
 
 
-        <MapViewController events={validEvents} />
+        <MapViewController events={validEvents} focusId={focusId} />
 
 
         {validEvents.map((event) => {
+          let metadata = event.event_metadata || {};
+          if (typeof metadata === 'string') { try { metadata = JSON.parse(metadata); } catch { metadata = {}; } }
+          if (!metadata || typeof metadata !== 'object') metadata = {};
+          const demo = event.status === 'demo' || metadata.is_demo;
+          const eventLabel = String(event.event_type || 'Urban incident').replaceAll('_', ' ');
 
           const latitude = Number(event.latitude);
           const longitude = Number(event.longitude);
 
-          const color = getEventColor(
+          const color = ['resolved','closed'].includes(event.status) ? '#94a3b8' : getEventColor(
             event.event_type
           );
 
@@ -189,6 +205,7 @@ export default function IncidentMap({
               key={`${event.id}-${latitude}-${longitude}`}
               position={[latitude, longitude]}
               icon={icon}
+              eventHandlers={{ add: e => { if (String(event.id) === String(focusId)) e.target.openPopup(); } }}
             >
 
               <Popup>
@@ -196,8 +213,16 @@ export default function IncidentMap({
                 <div style={{ minWidth: "190px" }}>
 
                   <strong>
-                    {event.event_type || "Urban Incident"}
+                    {eventLabel}
                   </strong>
+                  <p>Incident #{event.id}</p>
+                  <p>Status: {['open','in_progress','resolved','closed'].includes(event.status) ? event.status.replaceAll('_',' ') : 'open'}</p>
+                  <p>{incidentPlace({latitude,longitude,location_name:metadata.location_name})}</p>
+                  {event.timestamp && <p>{demo ? 'Assigned time' : 'Reported time'}: {new Date(event.timestamp).toLocaleString('en-IN')}</p>}
+                  {metadata.description && <details><summary>Recording details</summary><p>{sampleText(metadata.description)}</p></details>}
+                  {demo && <p>Map location assigned for visualization; recording location unverified.</p>}
+                  {metadata.evidence_available && <p>Video and detected frames are linked to incident #{event.id} in the government portal.</p>}
+                  {metadata.evidence_available && <a href={`${import.meta.env.VITE_GOVERNMENT_PORTAL_URL || 'http://127.0.0.1:5174'}/ai-results?incident=${event.id}`} target="_blank" rel="noreferrer">Government video evidence (sign-in)</a>}
 
                   <br />
 

@@ -1,211 +1,81 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Bus, Radio, Camera, Wrench, RefreshCw, Search, Plus, Download } from 'lucide-react';
 import { governmentApi } from '../api/governmentApi';
-
-export default function FleetPage() {
-  const [fleet, setFleet] = useState({
-    total_buses: 0,
-    total_cameras: 0,
-    buses: [],
-    cameras: [],
-  });
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const loadFleet = async () => {
-    try {
-      setLoading(true);
-      setError('');
-
-      const data = await governmentApi.getFleet();
-
-      setFleet({
-        total_buses: data?.total_buses ?? 0,
-        total_cameras: data?.total_cameras ?? 0,
-        buses: Array.isArray(data?.buses) ? data.buses : [],
-        cameras: Array.isArray(data?.cameras) ? data.cameras : [],
-      });
-    } catch (err) {
-      console.error('Fleet loading error:', err);
-      setError('Unable to load fleet data.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadFleet();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="loading-shell">
-        <div className="loading-spinner" />
-        <div className="loading-copy">
-          <strong>Loading Fleet Monitoring</strong>
-          <span>Fetching live fleet data...</span>
-        </div>
-      </div>
-    );
+import FleetMap from '../components/FleetMap';
+import LiveCameraPanel from '../components/LiveCameraPanel';
+import { hasCoordinates, incidentName, incidentPlace, evidencePath } from '../../../shared/incidentPresentation';
+import '../operations.css';
+const emptyBus={bus_number:'',route_number:'',is_active:true};
+const emptyCamera={bus_id:'',camera_code:'',camera_type:'front'};
+const statuses={online:'Recent device GPS',stale:'GPS overdue',no_telemetry:'No GPS received',manual_location:'Manual position',inactive:'Out of service'};
+const healthNames={frames_recent:'Recent frames reported',no_recent_frames:'No recent frames',no_telemetry:'No health report',stale:'Health report overdue',error:'Device error'};
+const time=value=>value?new Date(value).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'}):'Not received';
+function csvCell(value){const text=String(value??'');return '"'+(/^[=+\-@\t\r]/.test(text)?"'"+text:text).replaceAll('"','""')+'"';}
+export default function FleetPage(){
+  const [fleet,setFleet]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');
+  const [selected,setSelected]=useState(null),[search,setSearch]=useState(''),[filter,setFilter]=useState('all'),[auto,setAuto]=useState(true),[hours,setHours]=useState(24),[follow,setFollow]=useState(false),[fitKey,setFitKey]=useState(0);
+  const [detail,setDetail]=useState(null),[detailError,setDetailError]=useState(''),[detailAttempt,setDetailAttempt]=useState(0);
+  const [editing,setEditing]=useState(null),[busForm,setBusForm]=useState(emptyBus),[editingCamera,setEditingCamera]=useState(null),[cameraForm,setCameraForm]=useState(emptyCamera);
+  const request=useRef(null),mounted=useRef(false),mutating=useRef(false);
+  const load=useCallback(async()=>{request.current?.abort();const controller=new AbortController();request.current=controller;setBusy(true);
+    try{const data=await governmentApi.getFleet(controller.signal);if(!controller.signal.aborted){setFleet(data);setError('');}}
+    catch(err){if(!controller.signal.aborted)setError(err.message);}finally{if(!controller.signal.aborted)setBusy(false);}
+  },[]);
+  useEffect(()=>{mounted.current=true;load();return()=>{mounted.current=false;request.current?.abort();};},[load]);
+  useEffect(()=>{if(!auto)return;const timer=setInterval(()=>{if(!mutating.current)load();},15000);return()=>clearInterval(timer);},[auto,load]);
+  const buses=fleet?.buses||[],cameras=fleet?.cameras||[];
+  const visible=buses.filter(bus=>`${bus.bus_number} ${bus.route_number||''}`.toLowerCase().includes(search.toLowerCase())&&(filter==='all'||(filter==='attention'?bus.attention.length>0:bus.connection_status===filter)));
+  const current=visible.find(bus=>bus.id===selected)||visible[0],currentId=current?.id;
+  useEffect(()=>{
+    if(!currentId)return;
+    const controller=new AbortController();
+    Promise.all([governmentApi.getPositionHistory(currentId,hours,controller.signal),governmentApi.getIssues({bus_id:currentId},controller.signal)])
+      .then(([history,issues])=>{if(!controller.signal.aborted){setDetail({id:currentId,hours,history,issues});setDetailError('');}})
+      .catch(err=>{if(!controller.signal.aborted)setDetailError(err.message);});
+    return()=>controller.abort();
+  },[currentId,hours,fleet?.updated_at,detailAttempt]);
+  const currentDetail=detail&&detail.id===currentId&&detail.hours===hours?detail:null;
+  async function save(operation,success,reset){
+    if(mutating.current)return;mutating.current=true;setSaving(true);setError('');setMessage('');request.current?.abort();
+    try{await operation();if(mounted.current){reset?.();await load();setMessage(success);}}
+    catch(err){if(mounted.current)setError(err.message);}finally{mutating.current=false;if(mounted.current){setSaving(false);setBusy(false);}}
   }
-
-  if (error) {
-    return (
-      <div className="page-shell">
-        <div className="error-panel">
-          <h2>Unable to load fleet</h2>
-          <p>{error}</p>
-          <button className="primary-button" onClick={loadFleet}>
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="page-shell">
-      <div className="page-header">
-        <div>
-          <p className="eyebrow">Fleet operations</p>
-          <h1>Fleet Monitoring</h1>
-          <p className="page-description">
-            Monitor buses and camera infrastructure connected to the UrbanIQ network.
-          </p>
-        </div>
-
-        <button className="primary-button" onClick={loadFleet}>
-          Refresh fleet
-        </button>
-      </div>
-
-      <div className="stats-grid">
-        <StatCard
-          icon="🚌"
-          label="Total buses"
-          value={fleet.total_buses}
-          tone="cyan"
-        />
-
-        <StatCard
-          icon="📷"
-          label="Total cameras"
-          value={fleet.total_cameras}
-          tone="violet"
-        />
-
-        <StatCard
-          icon="📡"
-          label="Connected assets"
-          value={fleet.total_buses + fleet.total_cameras}
-          tone="indigo"
-        />
-      </div>
-
-      <div className="content-grid">
-        <FleetTable
-          title="Bus fleet"
-          description="Registered public transport vehicles"
-          icon="🚌"
-          rows={fleet.buses}
-          emptyTitle="No buses registered"
-          emptyText="No bus records are currently available in the fleet database."
-        />
-
-        <FleetTable
-          title="Camera infrastructure"
-          description="Camera devices installed across the fleet"
-          icon="📷"
-          rows={fleet.cameras}
-          emptyTitle="No cameras registered"
-          emptyText="No camera records are currently available in the database."
-        />
-      </div>
-    </div>
-  );
-}
-
-function FleetTable({
-  title,
-  description,
-  icon,
-  rows,
-  emptyTitle,
-  emptyText,
-}) {
-  return (
-    <section className="panel">
-      <div className="panel-header">
-        <div>
-          <h2>{title}</h2>
-          <p>{description}</p>
-        </div>
-
-        {title === 'Bus fleet' && (
-          <span className="live-badge">● Live</span>
-        )}
-      </div>
-
-      {rows.length === 0 ? (
-        <div className="empty-state fleet-empty-state">
-          <div className="empty-icon">{icon}</div>
-          <strong>{emptyTitle}</strong>
-          <span>{emptyText}</span>
-        </div>
-      ) : (
-        <div className="data-table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                {Object.keys(rows[0]).map((key) => (
-                  <th key={key}>{formatLabel(key)}</th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {rows.map((row, index) => (
-                <tr key={row.id ?? index}>
-                  {Object.keys(rows[0]).map((key) => (
-                    <td key={key}>{formatValue(row[key])}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function StatCard({ icon, label, value, tone }) {
-  return (
-    <div className={`stat-card ${tone}`}>
-      <div className="stat-icon">{icon}</div>
-
-      <div className="stat-content">
-        <span className="stat-label">{label}</span>
-        <strong>{value}</strong>
-      </div>
-    </div>
-  );
-}
-
-function formatLabel(value) {
-  return String(value)
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatValue(value) {
-  if (value === null || value === undefined || value === '') {
-    return '—';
-  }
-
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
-
-  return String(value);
+  function selectBus(id,openDetails=true){setSelected(id);if(openDetails)document.getElementById('fleet-detail')?.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  function editBus(bus){setEditing(bus.id);setBusForm({bus_number:bus.bus_number,route_number:bus.route_number||'',is_active:bus.is_active});document.getElementById('bus-form')?.scrollIntoView({behavior:'smooth'});}
+  function editCamera(camera){setEditingCamera(camera.id);setCameraForm({bus_id:camera.bus_id,camera_code:camera.camera_code,camera_type:camera.camera_type});document.getElementById('camera-form')?.scrollIntoView({behavior:'smooth'});}
+  function submitBus(event){event.preventDefault();save(()=>editing?governmentApi.editBus(editing,busForm):governmentApi.addBus(busForm),'Vehicle details saved.',()=>{setEditing(null);setBusForm(emptyBus);});}
+  function submitCamera(event){event.preventDefault();const payload={...cameraForm,bus_id:Number(cameraForm.bus_id)};save(()=>editingCamera?governmentApi.editCamera(editingCamera,payload):governmentApi.addCamera(payload),'Camera details saved.',()=>{setEditingCamera(null);setCameraForm(emptyCamera);});}
+  function submitLocation(event){event.preventDefault();const form=event.currentTarget,values=new FormData(form),busId=currentId;
+    save(()=>governmentApi.updatePosition(busId,{latitude:Number(values.get('latitude')),longitude:Number(values.get('longitude')),recorded_at:new Date().toISOString(),source:'manual'}),'Manual position saved. Device GPS is required for live tracking.',()=>form.reset());}
+  function exportFleet(){const rows=[['Bus number','Route','In service','GPS status','Latitude','Longitude','Recorded time','Cameras','Open issues'],...visible.map(bus=>[bus.bus_number,bus.route_number,bus.is_active,statuses[bus.connection_status],bus.latitude,bus.longitude,bus.last_seen,bus.camera_count,bus.open_issues])];
+    const url=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='fleet-status.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  return <div className="page-shell operations civic-ui fleet-page"><header className="civic-heading"><div><span className="civic-kicker">Transport operations</span><h1>Fleet monitoring</h1><p>Vehicle locations, camera health and the issues reported on each route.</p></div><div className="civic-actions"><button onClick={load} disabled={busy||saving}><RefreshCw size={16}/>{busy?'Updating…':'Refresh fleet'}</button><button onClick={()=>{setEditing(null);setBusForm(emptyBus);document.getElementById('bus-form')?.scrollIntoView({behavior:'smooth'});}}><Plus size={16}/>Add vehicle</button></div></header>
+    <div className="civic-metrics">{[[Bus,'Registered vehicles',fleet?.total_buses],[Radio,'Recent device GPS',fleet?.online_buses],[Camera,'Cameras reporting frames',fleet?.cameras_receiving_frames],[Wrench,'Vehicles needing attention',fleet?.attention_buses]].map(([Icon,title,value])=><div className="civic-metric" key={title}><span><Icon size={18}/>{title}</span><strong>{value??'—'}</strong></div>)}</div>
+    {error&&<p role="alert" className="civic-error">{error}</p>}{message&&<p role="status" className="civic-success">{message}</p>}
+    <LiveCameraPanel cameras={cameras.filter(camera=>!currentId||camera.bus_id===currentId)} onRegister={()=>document.getElementById(buses.length?'camera-form':'bus-form')?.scrollIntoView({behavior:'smooth'})}/>
+    <div className="civic-toolbar"><label className="civic-search"><Search size={17}/><input placeholder="Search bus number or route" aria-label="Search fleet" value={search} onChange={e=>setSearch(e.target.value)}/></label><label>Show <select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">All vehicles</option><option value="attention">Needs attention</option>{Object.entries(statuses).map(([value,title])=><option key={value} value={value}>{title}</option>)}</select></label>
+      <label className="civic-check"><input type="checkbox" checked={auto} onChange={e=>setAuto(e.target.checked)}/>Refresh every 15s</label><button disabled={!visible.length} onClick={exportFleet}><Download size={15}/>Export CSV</button></div>
+    <div className="civic-section-line"><span>{visible.length} vehicles · {visible.filter(hasCoordinates).length} with positions</span><small>{auto?'Auto refresh on':'Updates paused'} · Updated {time(fleet?.updated_at)}</small></div>
+    <div className="fleet-layout"><section className="civic-panel"><div className="civic-panel-heading"><h2>Last reported locations</h2><div className="civic-actions"><label className="civic-check"><input type="checkbox" checked={follow} onChange={e=>{setFollow(e.target.checked);if(e.target.checked)setSelected(currentId);}}/>Follow selected</label><button onClick={()=>{setSelected(null);setFollow(false);setFitKey(value=>value+1);}}>Fit fleet</button></div></div>
+      <FleetMap buses={visible} selected={selected===currentId?currentId:null} onSelect={selectBus} history={selected===currentId?currentDetail?.history.points||[]:[]} follow={follow} fitKey={fitKey}/>
+      <p className="civic-map-caption">Green: device GPS within 2 minutes. Grey: last known or manual position. Lines join recorded device points; gaps over 5 minutes are separated.</p>
+      {!visible.some(hasCoordinates)&&<p className="civic-map-caption">No vehicle coordinates received yet.</p>}</section>
+      <section className="civic-panel fleet-detail" id="fleet-detail">{!current?<div className="civic-empty"><Bus size={32}/><h2>{buses.length?'No vehicles match':'Connect your first vehicle'}</h2><p>{buses.length?'Change the search or status filter.':'Register a bus and its cameras below. Positions appear when GPS updates arrive.'}</p></div>:<>
+        <div className="civic-panel-heading"><div><span className="civic-kicker">Vehicle details</span><h2>{current.bus_number}</h2></div><button onClick={()=>editBus(current)}>Edit</button></div>
+        <p>Route {current.route_number||'unassigned'}</p><span className={`fleet-state ${current.online?'online':''}`}>{statuses[current.connection_status]}</span>
+        <dl className="civic-details"><dt>Recorded</dt><dd>{time(current.last_seen)}</dd><dt>Received</dt><dd>{time(current.received_at)}</dd><dt>Source</dt><dd>{current.location_source||'Not received'}</dd><dt>Coordinates</dt><dd>{hasCoordinates(current)?`${current.latitude.toFixed(6)}, ${current.longitude.toFixed(6)}`:'Not supplied'}</dd><dt>Camera frames</dt><dd>{current.cameras_receiving_frames} of {current.camera_count} reporting recently</dd></dl>
+        {!!current.attention.length&&<div className="fleet-attention">{current.attention.map(note=><p key={note}>{note}</p>)}</div>}
+        <div className="civic-actions"><Link to={`/detections?bus=${current.id}`}>{current.open_issues} open issues / {current.issue_count} recorded</Link></div>
+        <h3>Position history</h3><label>Window <select value={hours} onChange={e=>setHours(Number(e.target.value))}>{[1,6,24,168].map(value=><option key={value} value={value}>{value===168?'7 days':`${value} hours`}</option>)}</select></label>
+        <button disabled={!currentDetail?.history.points.length} onClick={()=>{setSelected(currentId);setFollow(false);setFitKey(value=>value+1);document.querySelector('.fleet-map')?.scrollIntoView({behavior:'smooth',block:'center'});}}>Show position trail</button>
+        {detailError?<p role="alert" className="civic-error">{detailError}<button onClick={()=>setDetailAttempt(value=>value+1)}>Retry history</button></p>:!currentDetail?<p>Loading positions…</p>:<><p className="civic-meta">{currentDetail.history.points.length} recorded positions{currentDetail.history.truncated?' · showing the latest 1,000':''}</p><ol className="fleet-timeline">{currentDetail.history.points.slice(-5).reverse().map((point,index)=><li key={`${point.recorded_at}-${index}`}><strong>{time(point.recorded_at)}</strong><span>{point.latitude.toFixed(5)}, {point.longitude.toFixed(5)} · {point.source}</span></li>)}</ol>{!currentDetail.history.points.length&&<p>No positions in this window.</p>}</>}
+        <details><summary>Set an operator-supplied position</summary><p className="civic-meta">A manual position does not mark a vehicle online.</p><form onSubmit={submitLocation} key={current.id}><fieldset disabled={saving}><label>Latitude<input name="latitude" type="number" min="-90" max="90" step="any" required/></label><label>Longitude<input name="longitude" type="number" min="-180" max="180" step="any" required/></label><button>Save manual position</button></fieldset></form></details>
+      </>}</section></div>
+    <section className="civic-panel"><div className="civic-panel-heading"><div><h2>Vehicle register</h2><p>GPS freshness and configured camera status are tracked separately.</p></div></div><div className="table-wrapper"><table className="data-table"><thead><tr><th>Vehicle / route</th><th>GPS status</th><th>Last report</th><th>Cameras</th><th>Open issues</th><th>Actions</th></tr></thead><tbody>{visible.map(bus=><tr key={bus.id} className={bus.id===currentId?'fleet-selected':''}><td><strong>{bus.bus_number}</strong><small>Route {bus.route_number||'unassigned'}</small></td><td>{statuses[bus.connection_status]}</td><td>{time(bus.last_seen)}</td><td>{bus.cameras_receiving_frames}/{bus.camera_count} reporting</td><td><Link to={`/detections?bus=${bus.id}`}>{bus.open_issues} issues</Link></td><td><div className="civic-actions"><button onClick={()=>selectBus(bus.id)}>Open</button><button onClick={()=>editBus(bus)}>Edit</button></div></td></tr>)}</tbody></table>{!visible.length&&<p className="civic-empty">{busy?'Loading vehicles…':'No vehicles to display.'}</p>}</div></section>
+    {current&&<section className="civic-panel"><div className="civic-panel-heading"><div><h2>Detected by {current.bus_number}</h2><p>Open a report to view its own recording and detected frames.</p></div><Link to={`/detections?bus=${current.id}`}>All vehicle issues</Link></div><div className="fleet-issue-list">{currentDetail?.issues.slice(0,5).map(item=><Link key={item.id} to={evidencePath(item)}><strong>{incidentName(item)}</strong><span>{incidentPlace(item)}</span><small>{item.status.replaceAll('_',' ')} · {item.evidence_available?'Video & images':'No video attached'}</small></Link>)}{currentDetail&&!currentDetail.issues.length&&<p>No detected issues linked to this vehicle.</p>}</div></section>}
+    <div className="fleet-forms"><section className="civic-panel" id="bus-form"><h2>{editing?'Edit vehicle':'Register a vehicle'}</h2><form onSubmit={submitBus}><fieldset disabled={saving}><label>Bus registration<input required maxLength={40} placeholder="Registration number" value={busForm.bus_number} onChange={e=>setBusForm({...busForm,bus_number:e.target.value})}/></label><label>Route number<input maxLength={40} value={busForm.route_number} onChange={e=>setBusForm({...busForm,route_number:e.target.value})}/></label><label className="civic-check"><input type="checkbox" checked={busForm.is_active} onChange={e=>setBusForm({...busForm,is_active:e.target.checked})}/>In service</label><div className="civic-actions"><button>{saving?'Saving…':editing?'Save changes':'Register vehicle'}</button>{editing&&<button type="button" onClick={()=>{setEditing(null);setBusForm(emptyBus);}}>Cancel edit</button>}</div></fieldset></form></section>
+      <section className="civic-panel" id="camera-form"><h2>{editingCamera?'Edit camera':'Register a camera'}</h2><form onSubmit={submitCamera}><fieldset disabled={saving}><label>Vehicle<select required disabled={!!editingCamera} value={cameraForm.bus_id} onChange={e=>setCameraForm({...cameraForm,bus_id:e.target.value})}><option value="">Select vehicle</option>{buses.map(bus=><option key={bus.id} value={bus.id}>{bus.bus_number}</option>)}</select></label><label>Camera code<input required maxLength={60} value={cameraForm.camera_code} onChange={e=>setCameraForm({...cameraForm,camera_code:e.target.value})}/></label><label>Position<select value={cameraForm.camera_type} onChange={e=>setCameraForm({...cameraForm,camera_type:e.target.value})}>{['front','rear','cabin'].map(value=><option key={value}>{value}</option>)}</select></label><div className="civic-actions"><button disabled={!buses.length}>{saving?'Saving…':editingCamera?'Save camera':'Register camera'}</button>{editingCamera&&<button type="button" onClick={()=>{setEditingCamera(null);setCameraForm(emptyCamera);}}>Cancel edit</button>}</div></fieldset></form></section></div>
+    <section className="civic-panel"><div className="civic-panel-heading"><div><h2>Camera health</h2><p>Device reports indicate recent frames. Configured status is managed by an operator.</p></div></div><div className="table-wrapper"><table className="data-table"><thead><tr><th>Camera / vehicle</th><th>Position</th><th>Device health</th><th>Last frame</th><th>Configured status</th><th>Actions</th></tr></thead><tbody>{cameras.filter(camera=>visible.some(bus=>bus.id===camera.bus_id)).map(camera=><tr key={camera.id}><td><strong>{camera.camera_code}</strong><small>{buses.find(bus=>bus.id===camera.bus_id)?.bus_number}</small></td><td>{camera.camera_type}</td><td>{healthNames[camera.health]}{camera.health_message&&<small>{camera.health_message}</small>}</td><td>{time(camera.last_frame_at)}</td><td><select aria-label={`Status of ${camera.camera_code}`} disabled={saving} value={camera.status} onChange={e=>save(()=>governmentApi.updateCamera(camera.id,e.target.value),'Camera status updated.')} >{!['active','maintenance','offline'].includes(camera.status)&&<option value={camera.status}>{camera.status}</option>}{['active','maintenance','offline'].map(value=><option key={value}>{value}</option>)}</select></td><td><button onClick={()=>editCamera(camera)}>Edit</button></td></tr>)}</tbody></table>{!cameras.some(camera=>visible.some(bus=>bus.id===camera.bus_id))&&<p className="civic-empty">No cameras registered for these vehicles.</p>}</div></section>
+  </div>;
 }

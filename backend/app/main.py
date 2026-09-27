@@ -10,6 +10,9 @@ from app.api.routes import (
     traffic,
     user,
     video_analysis,
+    analysis_results,
+    operations,
+    camera_live,
 )
 
 
@@ -30,6 +33,16 @@ app = FastAPI(
 )
 
 
+@app.middleware('http')
+async def private_response_headers(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith(('/api/v1/government', '/api/v1/video-analysis', '/api/v1/events')):
+        response.headers['Cache-Control'] = 'private, no-store'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
+
+
 # ============================================================
 # CORS
 # ============================================================
@@ -47,6 +60,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=['X-Captured-At', 'X-Received-At', 'X-Frame-Processing'],
 )
 
 # ============================================================
@@ -89,6 +103,9 @@ app.include_router(
     video_analysis.router,
     prefix=API_PREFIX,
 )
+app.include_router(analysis_results.router, prefix=API_PREFIX)
+app.include_router(operations.router, prefix=API_PREFIX)
+app.include_router(camera_live.router, prefix=API_PREFIX)
 
 
 # ============================================================

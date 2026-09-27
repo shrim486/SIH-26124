@@ -6,3 +6,5 @@ PyYAML==6.0.3
 Pillow==12.3.0
 pandas>=2.2,<3
 tqdm>=4.66,<5
+httpx
+python-dotenv

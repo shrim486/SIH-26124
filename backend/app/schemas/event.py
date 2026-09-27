@@ -26,8 +26,8 @@ VALID_EVENT_TYPES = {
 class EventCreate(BaseModel):
     event_type: str
     confidence: Optional[float] = Field(default=None, ge=0, le=1)
-    latitude: float
-    longitude: float
+    latitude: float = Field(ge=-90, le=90, allow_inf_nan=False)
+    longitude: float = Field(ge=-180, le=180, allow_inf_nan=False)
     timestamp: Optional[datetime] = None
     bus_id: Optional[int] = None
     camera_id: Optional[int] = None
@@ -39,12 +39,20 @@ class EventCreate(BaseModel):
     @classmethod
     def validate_event_type(cls, value: str) -> str:
         normalized = (value or "").strip().lower().replace(" ", "_")
+        normalized = {"damaged_road": "road_damage", "without_helmet": "helmet_violation",
+                      "congestion": "high_vehicle_density", "bottleneck": "traffic_bottleneck"}.get(normalized, normalized)
         if normalized not in VALID_EVENT_TYPES:
             raise ValueError(
                 "Unsupported event type. Must be one of: "
                 + ", ".join(sorted(VALID_EVENT_TYPES))
             )
         return normalized
+
+    @field_validator("timestamp")
+    @classmethod
+    def utc_timestamp(cls, value):
+        from datetime import timezone
+        return value.astimezone(timezone.utc).replace(tzinfo=None) if value and value.tzinfo else value
 
     @field_validator("severity")
     @classmethod

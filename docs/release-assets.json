@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "tag": "assets-2026-09-27",
+  "repository": "shrim486/SIH-26124",
+  "created_at": "2026-09-27T09:49:11.847094+00:00",
+  "bundles": {
+    "portal": {
+      "name": "urban-iq-portal.zip",
+      "bytes": 164328576,
+      "sha256": "cb63027daddcd15b5f4dbf838d65711c582ffbbc254c04fd67d46d65c8b3b5e0",
+      "files": 308,
+      "url": "https://github.com/shrim486/SIH-26124/releases/download/assets-2026-09-27/urban-iq-portal.zip"
+    },
+    "models": {
+      "name": "urban-iq-models.zip",
+      "bytes": 1033982984,
+      "sha256": "064f66feb1f0ff9a1fe8869ffad9964e129f586269ccf726e0d81e9f9882eb4b",
+      "files": 24,
+      "url": "https://github.com/shrim486/SIH-26124/releases/download/assets-2026-09-27/urban-iq-models.zip"
+    },
+    "originals": {
+      "name": "urban-iq-originals.zip",
+      "bytes": 657162988,
+      "sha256": "4d4ce8c70b3f80e74f9e634e01c3c76f1334924c32368550a777fc62df129c12",
+      "files": 12,
+      "url": "https://github.com/shrim486/SIH-26124/releases/download/assets-2026-09-27/urban-iq-originals.zip"
+    }
+  }
+}

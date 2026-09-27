@@ -1,0 +1,39 @@
+{
+  "evaluated_rider_checkpoint": {
+    "asset": {
+      "url": "https://raw.githubusercontent.com/NagaBalaji005/Real-time-helmet-and-Traffic-violation-Detection-system-using-YOLO-and-DEEPSORT/365dc335c3c97acf5e46000cffcac5a8f97ede51/runs/final_refined_model/weights/best.pt",
+      "path": "edge_ai\\models\\triple_riding\\supervised.pt",
+      "sha256": "04f8d3bddbf3194e43c5fd16f38c5a70b049b21e31acda38207968424963808a",
+      "bytes": 52032978,
+      "locally_trained": false,
+      "classes": {
+        "0": "helmet",
+        "1": "no_helmet",
+        "2": "mobile_usage",
+        "3": "traffic_violation",
+        "4": "number_plate"
+      }
+    },
+    "result": "Not integrated: checkpoint labels contain traffic_violation, not an explicit triple-riding class; no triple-riding positives on probe frames."
+  },
+  "omni_checkpoint": {
+    "asset": {
+      "url": "https://huggingface.co/spaces/Lokeshm25/OmniGuard-Vision/resolve/2487566ad2a5b79cedb4091540f207db402ecc8d/best.pt",
+      "path": "edge_ai/models/triple_riding/omni.pt",
+      "sha256": "63e4563b44019b0fa2c90200b8c594afbc3a73598b198bf83da7d77b8b380110",
+      "bytes": 5384645,
+      "classes": {
+        "0": "Plate",
+        "1": "WithHelmet",
+        "2": "WithoutHelmet",
+        "3": "TripleRiding"
+      },
+      "locally_trained": false
+    },
+    "result": "Not integrated: no triple-riding positives at 0.5 on three probe frames."
+  },
+  "large_world_divider_probe": {
+    "url": "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8l-worldv2.pt",
+    "result": "Not integrated: no guardrail/barrier/fence detections at 0.25 on three clear road-barrier frames."
+  }
+}

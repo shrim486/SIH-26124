@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { governmentApi } from "../api/userApi";
 
 
 export default function GovernmentLogin() {
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [username, setUsername] =
     useState("");
@@ -34,7 +35,8 @@ export default function GovernmentLogin() {
         password
       );
 
-      navigate("/government");
+      const destination = location.state?.from;
+      navigate(typeof destination === 'string' && (destination === '/government' || destination.startsWith('/government?') || destination.startsWith('/government/')) ? destination : '/government', {replace:true});
 
     } catch (err) {
 

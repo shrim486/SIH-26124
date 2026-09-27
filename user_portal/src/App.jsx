@@ -13,6 +13,8 @@ import UserDashboard from "./pages/UserDashboard";
 import LiveMap from "./pages/LiveMap";
 import ReportIssue from "./pages/ReportIssue";
 import MyReports from "./pages/MyReports";
+import Alerts from './pages/Alerts';
+import RoutePlanner from './pages/RoutePlanner';
 
 import GovernmentLogin from "./pages/GovernmentLogin";
 import GovernmentDashboard from "./pages/GovernmentDashboard";
@@ -21,6 +23,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/alerts" element={<UserLayout><Alerts /></UserLayout>} />
+        <Route path="/plan-route" element={<UserLayout><RoutePlanner /></UserLayout>} />
 
         {/* =====================================================
             CITIZEN PORTAL

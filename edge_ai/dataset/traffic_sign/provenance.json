@@ -1,0 +1,341 @@
+{
+  "development_subset": true,
+  "limit_per_split": 12,
+  "samples": [
+    {
+      "split": "train",
+      "id": "340",
+      "source_split": "train",
+      "row": 0,
+      "original_classes": [
+        24
+      ]
+    },
+    {
+      "split": "train",
+      "id": "374",
+      "source_split": "train",
+      "row": 1,
+      "original_classes": [
+        31,
+        19,
+        12
+      ]
+    },
+    {
+      "split": "train",
+      "id": "219",
+      "source_split": "train",
+      "row": 2,
+      "original_classes": [
+        18
+      ]
+    },
+    {
+      "split": "train",
+      "id": "293",
+      "source_split": "train",
+      "row": 3,
+      "original_classes": [
+        9,
+        37
+      ]
+    },
+    {
+      "split": "train",
+      "id": "127",
+      "source_split": "train",
+      "row": 4,
+      "original_classes": [
+        20
+      ]
+    },
+    {
+      "split": "train",
+      "id": "355",
+      "source_split": "train",
+      "row": 5,
+      "original_classes": [
+        37
+      ]
+    },
+    {
+      "split": "train",
+      "id": "197",
+      "source_split": "train",
+      "row": 6,
+      "original_classes": [
+        20
+      ]
+    },
+    {
+      "split": "train",
+      "id": "216",
+      "source_split": "train",
+      "row": 7,
+      "original_classes": [
+        37,
+        25
+      ]
+    },
+    {
+      "split": "train",
+      "id": "150",
+      "source_split": "train",
+      "row": 8,
+      "original_classes": [
+        39
+      ]
+    },
+    {
+      "split": "train",
+      "id": "35",
+      "source_split": "train",
+      "row": 9,
+      "original_classes": [
+        25
+      ]
+    },
+    {
+      "split": "train",
+      "id": "181",
+      "source_split": "train",
+      "row": 10,
+      "original_classes": [
+        36,
+        9
+      ]
+    },
+    {
+      "split": "train",
+      "id": "343",
+      "source_split": "train",
+      "row": 11,
+      "original_classes": [
+        36
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "52",
+      "source_split": "validation",
+      "row": 0,
+      "original_classes": []
+    },
+    {
+      "split": "valid",
+      "id": "12",
+      "source_split": "validation",
+      "row": 1,
+      "original_classes": [
+        25
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "58",
+      "source_split": "validation",
+      "row": 2,
+      "original_classes": [
+        5
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "50",
+      "source_split": "validation",
+      "row": 3,
+      "original_classes": [
+        33,
+        33
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "9",
+      "source_split": "validation",
+      "row": 4,
+      "original_classes": [
+        24
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "35",
+      "source_split": "validation",
+      "row": 5,
+      "original_classes": [
+        19
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "81",
+      "source_split": "validation",
+      "row": 6,
+      "original_classes": [
+        20,
+        36
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "18",
+      "source_split": "validation",
+      "row": 7,
+      "original_classes": [
+        7,
+        7
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "103",
+      "source_split": "validation",
+      "row": 8,
+      "original_classes": [
+        7
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "105",
+      "source_split": "validation",
+      "row": 9,
+      "original_classes": [
+        8,
+        19
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "33",
+      "source_split": "validation",
+      "row": 10,
+      "original_classes": [
+        25
+      ]
+    },
+    {
+      "split": "valid",
+      "id": "65",
+      "source_split": "validation",
+      "row": 11,
+      "original_classes": [
+        40,
+        42,
+        42
+      ]
+    },
+    {
+      "split": "test",
+      "id": "10",
+      "source_split": "test",
+      "row": 0,
+      "original_classes": [
+        37
+      ]
+    },
+    {
+      "split": "test",
+      "id": "11",
+      "source_split": "test",
+      "row": 1,
+      "original_classes": [
+        37,
+        37
+      ]
+    },
+    {
+      "split": "test",
+      "id": "12",
+      "source_split": "test",
+      "row": 2,
+      "original_classes": [
+        40
+      ]
+    },
+    {
+      "split": "test",
+      "id": "2",
+      "source_split": "test",
+      "row": 3,
+      "original_classes": []
+    },
+    {
+      "split": "test",
+      "id": "32",
+      "source_split": "test",
+      "row": 4,
+      "original_classes": [
+        33
+      ]
+    },
+    {
+      "split": "test",
+      "id": "14",
+      "source_split": "test",
+      "row": 5,
+      "original_classes": [
+        20
+      ]
+    },
+    {
+      "split": "test",
+      "id": "31",
+      "source_split": "test",
+      "row": 6,
+      "original_classes": [
+        25
+      ]
+    },
+    {
+      "split": "test",
+      "id": "18",
+      "source_split": "test",
+      "row": 7,
+      "original_classes": [
+        32
+      ]
+    },
+    {
+      "split": "test",
+      "id": "34",
+      "source_split": "test",
+      "row": 8,
+      "original_classes": [
+        24
+      ]
+    },
+    {
+      "split": "test",
+      "id": "36",
+      "source_split": "test",
+      "row": 9,
+      "original_classes": [
+        22,
+        22
+      ]
+    },
+    {
+      "split": "test",
+      "id": "21",
+      "source_split": "test",
+      "row": 10,
+      "original_classes": [
+        27
+      ]
+    },
+    {
+      "split": "test",
+      "id": "38",
+      "source_split": "test",
+      "row": 11,
+      "original_classes": [
+        36
+      ]
+    }
+  ],
+  "source": "https://huggingface.co/datasets/keremberke/german-traffic-sign-detection",
+  "mapping": "All 43 traffic-sign types mapped to class 0=traffic_sign; original categories preserved in this manifest."
+}

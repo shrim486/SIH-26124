@@ -122,7 +122,7 @@ export default function GovernmentDashboard() {
    *
    * Those belong to the citizen portal.
    */
-  const [activeView, setActiveView] = useState("dashboard");
+  const [activeView, setActiveView] = useState(() => new URLSearchParams(window.location.search).has('incident') ? 'video' : 'dashboard');
 
   const [statistics, setStatistics] = useState({});
   const [events, setEvents] = useState([]);
@@ -359,7 +359,7 @@ export default function GovernmentDashboard() {
       "Monitor the public transport fleet connected to the UrbanIQ network.",
 
     video:
-      "Run motorcycle and helmet detection on a raw traffic video.",
+      "View saved detection videos and images, or analyze another traffic video.",
   }[activeView];
 
 

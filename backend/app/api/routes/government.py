@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
+from app.core.login_attempts import LoginAttempts
 
 from app.core.government_auth import (
     create_government_token,
@@ -14,6 +15,7 @@ router = APIRouter(
     prefix="/government",
     tags=["Government"],
 )
+login_attempts = LoginAttempts()
 
 
 # ============================================================
@@ -21,8 +23,8 @@ router = APIRouter(
 # ============================================================
 
 class GovernmentLoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(min_length=1, max_length=160)
+    password: str = Field(min_length=1, max_length=1024)
 
 
 @router.options("/login")
@@ -31,7 +33,9 @@ def government_login_options():
 
 
 @router.post("/login")
-def government_login(data: GovernmentLoginRequest):
+def government_login(data: GovernmentLoginRequest, request: Request):
+    address = request.client.host if request.client else 'unknown'
+    login_attempts.check(address)
 
     if not verify_government_credentials(
         data.username,
@@ -42,6 +46,7 @@ def government_login(data: GovernmentLoginRequest):
             detail="Invalid government credentials",
         )
 
+    login_attempts.clear(address)
     token = create_government_token()
 
     return {
@@ -63,6 +68,7 @@ def government_auth_check(
         "authenticated": True,
         "role": authority["role"],
         "username": authority["username"],
+        "expires_at": authority['expires_at'],
     }
 
 
@@ -145,7 +151,7 @@ def get_fleet(
     db=Depends(get_db),
     authority=Depends(require_government_authority),
 ):
-    from app.services.event_service import get_fleet
+    from app.services.fleet_service import get_fleet
 
     return get_fleet(db)
 
@@ -199,7 +205,49 @@ def patch_road_issue_status(
     result = update_road_issue_status(db, issue_id, data.status)
     if not result:
         raise HTTPException(status_code=404, detail="Road issue not found")
+    if 'error' in result:
+        raise HTTPException(status_code=422, detail=result['error'])
     return result
+
+
+@router.patch('/violations/{violation_id}/status')
+def patch_violation_status(violation_id: int, data: StatusUpdateRequest, db=Depends(get_db), authority=Depends(require_government_authority)):
+    from app.models.violation import Violation
+    if data.status not in {'pending', 'reviewed', 'dismissed'}:
+        raise HTTPException(422, 'Choose pending, reviewed or dismissed')
+    violation = db.get(Violation, violation_id)
+    if not violation:
+        raise HTTPException(404, 'Violation not found')
+    from app.models.event import Event
+    from app.services.issue_service import linked_violation, update_issue, category
+    for event in db.query(Event).all():
+        linked = linked_violation(db, event) if category(event) == 'violations' else None
+        if linked and linked.id == violation.id:
+            update_issue(db, event.id, {'pending':'open', 'reviewed':'in_progress', 'dismissed':'closed'}[data.status], authority['username'])
+    violation.status = data.status
+    db.commit()
+    return {'id': violation.id, 'status': violation.status}
+
+
+@router.patch('/alerts/{alert_id}')
+def patch_alert_status(alert_id: int, data: StatusUpdateRequest, db=Depends(get_db), authority=Depends(require_government_authority)):
+    from app.models.alert import Alert
+    from datetime import datetime
+    if data.status not in {'active', 'dismissed'}:
+        raise HTTPException(422, 'Choose active or dismissed')
+    alert = db.get(Alert, alert_id)
+    if not alert:
+        raise HTTPException(404, 'Alert not found')
+    if data.status == 'active':
+        from app.models.alert_event import AlertEvent
+        from app.models.event import Event
+        link = db.query(AlertEvent).filter_by(alert_id=alert.id).first()
+        event = db.get(Event, link.event_id) if link else None
+        if event and event.status in {'resolved', 'closed'}:
+            raise HTTPException(409, 'Reopen the issue before reactivating its alert')
+    alert.expires_at = datetime.utcnow() if data.status == 'dismissed' else None
+    db.commit()
+    return {'id': alert.id, 'status': data.status}
 
 
 # ============================================================

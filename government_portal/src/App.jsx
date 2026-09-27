@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { governmentApi } from "./api/governmentApi";
 import { NavLink, Outlet } from "react-router-dom";
+import useGovernmentAccess from '../../shared/useGovernmentAccess';
 import {
   LayoutDashboard,
   Construction,
@@ -9,6 +10,7 @@ import {
   Bell,
   Bus,
   BarChart3,
+  Film,
 } from "lucide-react";
 
 const navItems = [
@@ -22,6 +24,8 @@ const navItems = [
     label: "Road Issues",
     icon: Construction,
   },
+  { to: '/detections', label: 'Detected Issues Map', icon: CarFront },
+  { to: '/ai-results', label: 'Videos & Images', icon: Film },
   {
     to: "/violations",
     label: "Traffic Violations",
@@ -49,27 +53,29 @@ const navItems = [
   },
 ];
 
+const access = {
+  getToken:()=>sessionStorage.getItem('government_token'),
+  verify:signal=>governmentApi.checkSession(signal),
+  clear:()=>sessionStorage.removeItem('government_token'),
+};
+
 function Layout() {
-  const [authenticated, setAuthenticated] = useState(() => Boolean(sessionStorage.getItem('government_token')));
+  const {status,check,signOut} = useGovernmentAccess(access);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    const expired = () => setAuthenticated(false);
-    window.addEventListener('government-unauthorized', expired);
-    return () => window.removeEventListener('government-unauthorized', expired);
-  }, []);
   async function login(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     setBusy(true); setError('');
     try {
       await governmentApi.login(data.get('username'), data.get('password'));
-      setAuthenticated(true);
-    } catch { setError('Sign-in failed. Check your credentials and backend connection.'); }
+      if (!await check()) throw new Error('Government session verification failed');
+    } catch (error) { setError(error.message || 'Sign-in failed. Check your credentials and backend connection.'); }
     finally { setBusy(false); }
   }
-  if (!authenticated) return (
-    <main style={{ maxWidth: 420, margin: '12vh auto', padding: 28 }}>
+  if (status==='checking') return <main className="civic-signin civic-ui"><p role="status">Checking government session…</p></main>;
+  if (status!=='verified') return (
+    <main className="civic-signin civic-ui"><span className="civic-kicker">UrbanIQ · Government portal</span>
       <h1>Government sign in</h1>
       <form onSubmit={login} style={{ display: 'grid', gap: 16 }}>
         <label>Username <input name="username" autoComplete="username" required /></label>
@@ -93,7 +99,7 @@ function Layout() {
 
           <div className="brand-text">
             <h2>UrbanIQ</h2>
-            <span>Government Command Center</span>
+            <span>Government portal</span>
           </div>
         </div>
 
@@ -131,16 +137,16 @@ function Layout() {
 
         {/* FOOTER */}
         <div className="sidebar-footer">
-          <button onClick={() => { sessionStorage.removeItem('government_token'); setAuthenticated(false); }}>Sign out</button>
+          <button onClick={signOut}>Sign out</button>
 
           <div className="network-label">
-            AI Fleet Network
+            Fleet operations
           </div>
 
           <div className="network-status">
             <span className="status-dot" />
             <span>
-              All systems operational
+              Status in Fleet Monitoring
             </span>
           </div>
 

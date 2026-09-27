@@ -1,0 +1,5 @@
+-r requirements-video-demo.txt
+lap==0.5.13
+fast-alpr[onnx]==0.4.0
+openai-clip==1.0.1
+setuptools>=65,<81

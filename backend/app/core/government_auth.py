@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+from hmac import compare_digest
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -41,10 +42,9 @@ def verify_government_credentials(
     Verify government credentials against server-side configuration.
     """
 
-    return (
-        username == settings.GOVERNMENT_USERNAME
-        and password == settings.GOVERNMENT_PASSWORD
-    )
+    valid_username = compare_digest(username.encode(), settings.GOVERNMENT_USERNAME.encode())
+    valid_password = compare_digest(password.encode(), settings.GOVERNMENT_PASSWORD.encode())
+    return valid_username and valid_password
 
 
 def require_government_authority(
@@ -72,6 +72,7 @@ def require_government_authority(
             token,
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM],
+            options={'require_exp': True, 'require_sub': True},
         )
 
         username = payload.get("sub")
@@ -89,6 +90,7 @@ def require_government_authority(
         return {
             "username": username,
             "role": role,
+            "expires_at": payload['exp'],
         }
 
     except JWTError:

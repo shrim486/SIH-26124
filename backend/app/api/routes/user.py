@@ -1,5 +1,8 @@
 from math import radians, sin, cos, sqrt, atan2
+import json
 from typing import Optional
+from datetime import datetime, timezone
+from sqlalchemy import or_
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
@@ -9,6 +12,8 @@ from app.db.database import get_db
 from app.models.alert import Alert
 from app.models.event import Event
 from app.models.road_issue import RoadIssue
+from app.schemas.journey import JourneyRequest
+from app.services.alert_service import list_alerts, metadata, public_metadata
 
 
 router = APIRouter(
@@ -20,15 +25,6 @@ router = APIRouter(
 # ============================================================
 # MODELS
 # ============================================================
-
-class LocationPoint(BaseModel):
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
-
-
-class RouteRequest(BaseModel):
-    origin: LocationPoint
-    destination: LocationPoint
 
 
 # ============================================================
@@ -74,19 +70,13 @@ def get_user_dashboard(
     db: Session = Depends(get_db),
 ):
 
-    total_alerts = db.query(Alert).count()
+    active_alerts = list_alerts(db, active_only=True)
+    total_alerts = len(active_alerts)
 
-    open_issues = (
-        db.query(RoadIssue)
-        .filter(RoadIssue.status == "open")
-        .count()
-    )
-
-    resolved_issues = (
-        db.query(RoadIssue)
-        .filter(RoadIssue.status == "resolved")
-        .count()
-    )
+    from app.services.issue_service import list_issues
+    issues = list_issues(db)
+    open_issues = sum(item['status'] in {'open', 'in_progress'} for item in issues)
+    resolved_issues = sum(item['status'] in {'resolved', 'closed'} for item in issues)
 
     potholes = (
         db.query(Event)
@@ -106,18 +96,16 @@ def get_user_dashboard(
         .count()
     )
 
-    recent_alerts = (
-        db.query(Alert)
-        .order_by(Alert.created_at.desc())
-        .limit(20)
-        .all()
-    )
+    recent_alerts = active_alerts[:20]
 
     return {
         "statistics": {
             "total_alerts": total_alerts,
+            "demo_alerts": sum(item['is_demo'] for item in active_alerts),
+            "real_alerts": sum(not item['is_demo'] for item in active_alerts),
             "open_issues": open_issues,
             "resolved_issues": resolved_issues,
+            "demo_issues": sum(item['is_demo'] for item in issues),
             "potholes": potholes,
             "waterlogging": waterlogging,
             "accidents": accidents,
@@ -153,12 +141,11 @@ def get_user_map_events(
             "confidence": event.confidence,
             "latitude": event.latitude,
             "longitude": event.longitude,
-            "timestamp": event.timestamp,
-            "bus_id": event.bus_id,
-            "camera_id": event.camera_id,
+            "timestamp": event.timestamp.replace(tzinfo=timezone.utc) if event.timestamp else None,
             "severity": event.severity,
             "status": event.status,
-            "event_metadata": event.event_metadata,
+            "is_demo": bool(metadata(event).get('is_demo') or event.status == 'demo'),
+            "event_metadata": json.dumps(public_metadata(metadata(event))),
         }
         for event in events
     ]
@@ -168,17 +155,17 @@ def get_user_map_events(
 # CITIZEN ALERTS
 # ============================================================
 
+@router.get('/records')
+def recorded_alerts(archive: bool = False, db: Session = Depends(get_db)):
+    from app.services.alert_service import records_payload
+    return records_payload(db, archive=archive)
+
 @router.get("/alerts")
 def get_user_alerts(
+    include_demo: bool = True,
     db: Session = Depends(get_db),
 ):
-
-    return (
-        db.query(Alert)
-        .order_by(Alert.created_at.desc())
-        .limit(50)
-        .all()
-    )
+    return list_alerts(db, active_only=True, include_demo=include_demo)
 
 
 # ============================================================
@@ -202,6 +189,7 @@ def get_nearby_alerts(
         ge=0.1,
         le=50.0,
     ),
+    include_demo: bool = False,
     db: Session = Depends(get_db),
 ):
 
@@ -211,7 +199,12 @@ def get_nearby_alerts(
     # ROAD ISSUES
     # --------------------------------------------------------
 
-    for issue in db.query(RoadIssue).all():
+    active_alerts = list_alerts(db, active_only=True, include_demo=include_demo)
+    linked_issues = {item['issue_id'] for item in active_alerts if item['issue_id']}
+    for issue in db.query(RoadIssue).filter(RoadIssue.status.in_(['open', 'in_progress'])).all():
+
+        if issue.id in linked_issues:
+            continue
 
         if issue.latitude is None or issue.longitude is None:
             continue
@@ -243,27 +236,24 @@ def get_nearby_alerts(
     # ALERTS
     # --------------------------------------------------------
 
-    for alert in db.query(Alert).all():
+    for alert in active_alerts:
 
-        if alert.latitude is None or alert.longitude is None:
+        if alert['latitude'] is None or alert['longitude'] is None:
             continue
 
         distance = haversine_km(
             latitude,
             longitude,
-            alert.latitude,
-            alert.longitude,
+            alert['latitude'],
+            alert['longitude'],
         )
 
         if distance <= radius_km:
 
             results.append(
                 {
-                    "type": alert.alert_type,
-                    "latitude": alert.latitude,
-                    "longitude": alert.longitude,
-                    "severity": alert.severity or "medium",
-                    "message": alert.message,
+                    **alert,
+                    "type": alert['alert_type'],
                     "distance_km": round(
                         distance,
                         2,
@@ -278,58 +268,16 @@ def get_nearby_alerts(
 # ROUTE
 # ============================================================
 
-@router.post(
-    "/route",
-    status_code=status.HTTP_200_OK,
-)
-def create_user_route(
-    payload: RouteRequest,
-):
+@router.get("/places")
+def find_places(q: str = Query(..., min_length=3, max_length=160)):
+    from app.services.map_provider import search_places
+    return search_places(q)
 
-    origin = payload.origin
-    destination = payload.destination
 
-    distance_km = haversine_km(
-        origin.latitude,
-        origin.longitude,
-        destination.latitude,
-        destination.longitude,
-    )
-
-    route = [
-        {
-            "latitude": origin.latitude,
-            "longitude": origin.longitude,
-        },
-        {
-            "latitude": (
-                origin.latitude
-                + destination.latitude
-            ) / 2,
-            "longitude": (
-                origin.longitude
-                + destination.longitude
-            ) / 2,
-        },
-        {
-            "latitude": destination.latitude,
-            "longitude": destination.longitude,
-        },
-    ]
-
-    return {
-        "route": route,
-        "distance_km": round(
-            distance_km,
-            2,
-        ),
-        "duration_minutes": max(
-            5,
-            int(distance_km * 2.8),
-        ),
-        "traffic_score": 0.32,
-        "hazard_score": 0.12,
-    }
+@router.post("/route", status_code=status.HTTP_200_OK)
+def create_user_route(payload: JourneyRequest, db: Session = Depends(get_db)):
+    from app.services.journey_service import plan_journey
+    return plan_journey(db, payload)
 
 
 # ============================================================
@@ -382,6 +330,7 @@ def get_citizen_reports(
 ):
     reports = (
         db.query(Event)
+        .filter(Event.event_metadata.contains('citizen_report'))
         .order_by(Event.timestamp.desc())
         .limit(50)
         .all()
@@ -395,7 +344,7 @@ def get_citizen_reports(
             "severity": r.severity,
             "status": r.status,
             "timestamp": (
-                r.timestamp.isoformat()
+                r.timestamp.replace(tzinfo=timezone.utc).isoformat()
                 if r.timestamp
                 else None
             ),

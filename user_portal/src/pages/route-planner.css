@@ -1,0 +1,98 @@
+.route-planner { color: #eaf2ff; max-width: 1600px; margin: 0 auto; }
+.route-planner h1 { font-size: clamp(26px, 3vw, 38px); margin: 6px 0 10px; letter-spacing: -.03em; }
+.route-planner h2 { font-size: 19px; margin: 0 0 14px; }
+.rp-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.rp-heading p { margin: 0; color: #a0b6cc; line-height: 1.6; }
+.rp-heading > svg { color: #38bdf8; flex-shrink: 0; }
+.rp-heading .rp-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #55cafb; letter-spacing: .12em; }
+.rp-layout { display: grid; grid-template-columns: minmax(320px, .85fr) minmax(0, 1.5fr); gap: 20px; align-items: start; }
+.rp-panel, .rp-map-panel { border: 1px solid #244059; border-radius: 16px; background: #0c1b2b; min-width: 0; }
+.rp-panel { padding: 22px; }
+.rp-form { display: flex; flex-direction: column; gap: 20px; }
+.route-planner button { border: 1px solid #34516e; border-radius: 8px; background: #142b40; color: #e3f2ff; padding: 9px 12px; line-height: 1.4; }
+.route-planner button:hover:not(:disabled) { background: #203d56; border-color: #38bdf8; }
+.route-planner button:disabled { opacity: .5; cursor: not-allowed; }
+.route-planner button:focus-visible, .route-planner input:focus-visible, .route-planner select:focus-visible, .route-planner a:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 3px; }
+.route-planner button[aria-pressed="true"] { border-color: #38bdf8; background: #103c53; }
+.rp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.rp-actions button, .rp-add-stop, .rp-plan { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.rp-actions button { font-size: 12px; flex: 1; }
+.rp-place > label, .rp-preferences > label:not(.rp-checkbox) { display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 600; }
+.rp-place > label { margin-bottom: 8px; }
+.route-planner input:not([type="checkbox"]), .route-planner select { min-width: 0; width: 100%; background: #091724; border: 1px solid #34516e; border-radius: 8px; padding: 10px; color: #eaf2ff; font-size: 13px; }
+.route-planner input::placeholder { color: #8aa3ba; }
+.rp-search { display: flex; gap: 5px; }
+.rp-search input { flex: 1; }
+.rp-search button { font-size: 12px; flex-shrink: 0; }
+.rp-confirmed { color: #74ddb8; display: block; font-size: 11px; margin-top: 7px; }
+.rp-place-results { list-style: none; padding: 6px; margin: 8px 0 0; background: #071624; border: 1px solid #34516e; border-radius: 8px; max-height: 240px; overflow: auto; }
+.rp-place-results li + li { margin-top: 5px; }
+.rp-place-results button { width: 100%; text-align: left; font-size: 12px; }
+.rp-stop { border-left: 2px solid #38bdf8; padding-left: 12px; }
+.rp-stop-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; font-size: 11px; }
+.rp-stop-tools label { flex: 1; white-space: nowrap; color: #acc4d9; }
+.rp-stop-tools label input { width: 52px !important; padding: 5px !important; }
+.rp-stop-tools button { font-size: 11px; padding: 6px 9px; }
+.rp-preferences { display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #244059; padding-top: 20px; }
+.rp-checkbox { display: flex; gap: 9px; align-items: flex-start; color: #c0d5e8; font-size: 12px; line-height: 1.5; }
+.rp-checkbox input { accent-color: #38bdf8; margin-top: 3px; flex-shrink: 0; }
+.route-planner .rp-plan { padding: 13px; font-weight: 700; background: #086da6; border-color: #279ddd; }
+.route-planner .rp-plan:hover:not(:disabled) { background: #0781bb; }
+.rp-note { font-size: 12px; line-height: 1.65; color: #9db6cc; margin: 0; }
+.rp-error { font-size: 13px; color: #fecaca; background: #452332; padding: 10px; border-radius: 8px; margin: 8px 0 0; }
+.rp-map-panel { overflow: hidden; }
+.rp-alert-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:14px 16px; border-top:1px solid #244059; background:#102131; }
+.rp-alert-toolbar > div { flex:1 1 220px; }
+.rp-alert-toolbar strong,.rp-alert-toolbar small { display:block; }
+.rp-alert-toolbar small { color:#a6bfd4; margin-top:5px; font-size:11px; }
+.rp-alert-toolbar button { font-size:12px; }
+.rp-alert-toolbar .rp-checkbox { flex-basis:100%; }
+.rp-alert-note { padding:10px 16px; }
+.rp-alert-pins { display:flex; gap:8px; overflow:auto; padding:0 16px 16px; }
+.rp-alert-pins button { flex:0 0 190px; text-align:left; padding:12px; }
+.rp-alert-pins strong,.rp-alert-pins span,.rp-alert-pins small { display:block; }
+.rp-alert-pins span { color:#a6bfd4; font-size:11px; margin-top:6px; line-height:1.5; }
+.rp-alert-pins small { color:#7dd3fc; margin-top:6px; }
+.rp-map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; min-height: 59px; color: #bbd1e3; font-size: 12px; }
+.rp-map-toolbar button { flex-shrink: 0; font-size: 12px; }
+.rp-map { width: 100%; height: 540px; z-index: 0; }
+.rp-map.rp-picking { cursor: crosshair; }
+.rp-map .leaflet-popup-content { color: #142b40; line-height: 1.5; }
+.rp-map .leaflet-popup-content p { margin: 7px 0; }
+.rp-map .leaflet-popup-content a { color: #0369a1; }
+.rp-map-legend, .rp-attribution { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 16px; color: #bdd2e4; font-size: 11px; }
+.rp-map-legend span:nth-child(1) { color: #7dd3fc; }
+.rp-map-legend span:nth-child(2) { color: #fca5a5; }
+.rp-map-legend span:nth-child(3) { color: #fcd34d; }
+.rp-map-legend span:nth-child(4) { color: #c4b5fd; }
+.rp-attribution { display: block; line-height: 1.8; border-top: 1px solid #244059; }
+.rp-attribution a { color: #8bd6fb; }
+.rp-results { margin-top: 28px; display: flex; flex-direction: column; gap: 16px; }
+.rp-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rp-section-heading h2 { margin: 0; }
+.rp-section-heading span { font-size: 12px; color: #9db6cc; }
+.rp-route-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.route-planner .rp-route { display: flex; flex-direction: column; gap: 12px; text-align: left; padding: 20px; border-radius: 14px; background: #0c1b2b; color: #a9c3da; font-size: 12px; }
+.route-planner .rp-route.rp-selected { border: 2px solid #38bdf8; padding: 19px; background: linear-gradient(140deg, #103750, #0c1b2b); }
+.rp-route-name { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #e3f2ff; font-size: 13px; }
+.rp-route-name b { font-size: 10px; padding: 3px 7px; border-radius: 4px; background: #38bdf8; color: #042438; }
+.rp-route > strong { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: 26px; color: #f0f9ff; }
+.rp-route strong small { font-size: 11px; font-weight: 400; color: #acc4d9; }
+.rp-road-names { border-top: 1px solid #2a435a; padding-top: 12px; margin-top: auto; line-height: 1.6; }
+.rp-notice { margin: 0; border-left: 3px solid #eab308; border-radius: 5px; padding: 12px 14px; background: #302b20; color: #f6dea2; font-size: 12px; line-height: 1.6; }
+.rp-detail-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; }
+.rp-detail-grid .rp-checkbox, .rp-detail-grid .rp-notice { margin-top: 14px; }
+.rp-issue { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #244059; }
+.rp-issue > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rp-issue strong { font-size: 14px; }
+.rp-issue span, .rp-issue small { font-size: 12px; color: #a6bfd4; line-height: 1.5; }
+.rp-issue button { font-size: 11px; flex-shrink: 0; }
+.rp-legs { padding-left: 21px; margin: 20px 0; }
+.rp-legs li { padding: 0 0 20px 6px; }
+.rp-legs li::marker { color: #38bdf8; }
+.rp-legs strong, .rp-legs span, .rp-legs small { display: block; overflow-wrap: anywhere; }
+.rp-legs strong { font-size: 13px; line-height: 1.6; }
+.rp-legs span, .rp-legs small { font-size: 12px; color: #a6bfd4; margin-top: 6px; line-height: 1.5; }
+.rp-detail-grid .rp-panel > button { margin-top: 18px; }
+@media (max-width: 1150px) { .rp-layout { grid-template-columns: 1fr; } .rp-map { height: 460px; } .rp-detail-grid { grid-template-columns: 1fr; } }
+@media (max-width: 580px) { .rp-panel { padding: 16px; } .rp-heading > svg { display: none; } .rp-map { height: 380px; } .rp-search { flex-wrap: wrap; } .rp-search input { flex-basis: 100%; } .rp-issue { align-items: flex-start; flex-direction: column; } .rp-route-cards { grid-template-columns: 1fr; } }

@@ -970,3 +970,5 @@
   }
 
 }
+.map-filters {display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin:12px 0 20px;}
+.map-filters select {padding:10px;border-radius:8px;background:#152236;color:#eef5fa;border:1px solid #35516d;}

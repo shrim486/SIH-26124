@@ -1,0 +1,50 @@
+.ai-results { padding: 24px; border: 1px solid #29415c; border-radius: 14px; background: #0b1320; color: #dce8f7; margin-bottom: 28px; }
+.ai-results h2, .ai-results h3 { color: #fff; margin: 0 0 12px; }
+.ai-results p { color: #aac0d8; line-height: 1.6; }
+.ai-result-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ai-results button, .ai-results select { padding: 10px 14px; background: #152638; color: #fff; border: 1px solid #416586; border-radius: 8px; }
+.ai-results select { max-width: 100%; margin: 10px 0 22px; }
+.ai-results video { display: block; width: 100%; max-height: 70vh; border-radius: 10px; background: #000; }
+.ai-result-download { display: inline-block; margin: 12px 0; color: #7cd6ff; }
+.ai-result-tags { font-size: 13px; }
+.ai-result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px,100%),1fr)); gap: 16px; margin-top: 18px; }
+.ai-result-image { margin: 0; border: 1px solid #29415c; border-radius: 10px; overflow: hidden; background: #070d16; }
+.ai-result-image img { width: 100%; height: 170px; object-fit: contain; display: block; }
+.ai-result-image figcaption { padding: 10px; font-size: 13px; color: #c2d8f0; }
+.ai-results summary { cursor: pointer; padding: 18px 0; font-weight: 600; }
+.ai-results [role=alert] { color: #ffadb7; }
+.ai-publish-accident { margin-top: 24px; border-top: 1px solid #29415c; padding-top: 20px; }
+.ai-incident-form { display: grid; gap: 14px; max-width: 720px; }
+.ai-incident-form label { display: grid; gap: 6px; }
+.ai-incident-form input, .ai-incident-form textarea { padding: 10px; background: #152638; border: 1px solid #416586; color: white; border-radius: 8px; }
+.ai-incident-banner { padding: 16px; border: 1px solid #ffb547; border-radius: 10px; margin-bottom: 18px; }
+.ai-results a { color: #7cd6ff; }
+.video-analysis-panel { display: grid; gap: 14px; }
+.video-analysis-panel > label { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.video-analysis-panel select, .video-analysis-panel input[type=number] { padding: 10px; color: inherit; background: #122237; border: 1px solid #416586; border-radius: 8px; }
+.video-analysis-panel input[type=number] { width: 95px; }
+.video-analysis-picker { padding: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; border: 1px solid #29415c; border-radius: 12px; }
+.video-analysis-picker > div { display: grid; gap: 6px; }
+.video-analysis-button { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; cursor: pointer; }
+.video-analysis-preview { width: 100%; max-height: 65vh; background: #000; border-radius: 10px; }
+
+.ai-model-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:20px 0;}
+.ai-model-grid button {display:flex;flex-direction:column;text-align:left;gap:8px;padding:16px;border:1px solid #35516d;border-radius:12px;background:#122235;color:#e5edf7;cursor:pointer;}
+.ai-model-grid button.selected {border-color:#37d5eb;box-shadow:0 0 0 1px #37d5eb;}
+.ai-model-grid span,.ai-model-grid small {font-size:12px;color:#b9c8d8;}
+.ai-results select {max-width:100%;}
+.ai-results-inline {padding:16px;margin:18px 0;min-width:0;}
+.ai-results-inline h3 {font-size:18px;}
+.ai-results h4 {font-size:17px;color:#f1f5f9;margin:18px 0 8px;}
+.ai-results-inline .ai-result-grid {grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:10px;}
+.ai-frame-open {display:block;margin-top:7px;}
+.ai-frame-help,.ai-segment-time {font-size:13px;}
+.issue-evidence-panel {margin:20px 0;scroll-margin-top:20px;}
+.evidence-browser {display:grid;grid-template-columns:minmax(210px,.55fr) minmax(0,1.6fr);gap:20px;align-items:start;}
+.evidence-selector {display:grid;gap:10px;}
+.evidence-selector button {text-align:left;border:1px solid #35516d;border-radius:10px;background:#122235;color:#e5edf7;padding:14px;cursor:pointer;}
+.evidence-selector button[aria-pressed=true] {border-color:#67e8f9;background:#153e50;}
+.evidence-selector strong,.evidence-selector span {display:block;}
+.evidence-selector span {margin-top:6px;font-size:12px;color:#b9c8d8;}
+.evidence-selected {min-width:0;}
+@media(max-width:850px){.evidence-browser{grid-template-columns:1fr}.evidence-selector{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}}

@@ -200,6 +200,7 @@ export default function ReportIssue() {
             <label>
               Latitude
               <input
+                type="number" step="any" min="-90" max="90"
                 value={form.latitude}
                 onChange={(e) =>
                   update("latitude", e.target.value)
@@ -212,6 +213,7 @@ export default function ReportIssue() {
             <label>
               Longitude
               <input
+                type="number" step="any" min="-180" max="180"
                 value={form.longitude}
                 onChange={(e) =>
                   update("longitude", e.target.value)

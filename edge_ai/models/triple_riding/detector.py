@@ -20,15 +20,44 @@ class TripleRidingDetector:
                 person_height = py2 - py1
                 if person_width < 10 or person_height < 20:
                     continue
-                people.append({
-                    "box": (px1, py1, px2, py2),
-                    "cx": (px1 + px2) / 2,
-                    "cy": (py1 + py2) / 2,
-                    "bottom": py2,
-                    "width": person_width,
-                })
+                people.append(
+                    {
+                        "box": (px1, py1, px2, py2),
+                        "cx": (px1 + px2) / 2,
+                        "cy": (py1 + py2) / 2,
+                        "bottom": py2,
+                        "width": person_width,
+                    }
+                )
 
         detections = {}
+        # A detected person can belong to at most one motorcycle. Pick the
+        # closest eligible motorcycle rather than counting one person twice.
+        assignments = defaultdict(list)
+        for person in people:
+            eligible = []
+            for box, identity in motorcycle_boxes:
+                x1, y1, x2, y2 = box
+                w, h = x2 - x1, y2 - y1
+                if w < 30 or h < 30:
+                    continue
+                if (
+                    x1 - 0.12 * w <= person["cx"] <= x2 + 0.12 * w
+                    and max(0, y1 - 1.25 * h)
+                    <= person["cy"]
+                    <= min(frame_height, y2 + 0.1 * h)
+                    and y1 - 0.2 * h <= person["bottom"] <= y2 + 0.15 * h
+                    and person["width"] <= 1.2 * w
+                ):
+                    eligible.append(
+                        (abs(person["cx"] - (x1 + x2) / 2) / w, int(identity))
+                    )
+            if eligible:
+                assignments[min(eligible)[1]].append(person)
+        visible_ids = {int(identity) for _, identity in motorcycle_boxes}
+        for identity in list(self.history):
+            if identity not in visible_ids:
+                del self.history[identity]
         for motorcycle_box, track_id in motorcycle_boxes:
             x1, y1, x2, y2 = motorcycle_box
             motorcycle_width = x2 - x1
@@ -36,23 +65,7 @@ class TripleRidingDetector:
             if motorcycle_width < 30 or motorcycle_height < 30:
                 continue
 
-            corridor_x1 = x1 - int(motorcycle_width * 0.12)
-            corridor_x2 = x2 + int(motorcycle_width * 0.12)
-            corridor_y1 = max(0, y1 - int(motorcycle_height * 1.25))
-            corridor_y2 = min(frame_height, y2 + int(motorcycle_height * 0.10))
-            associated = []
-            for person in people:
-                if not corridor_x1 <= person["cx"] <= corridor_x2:
-                    continue
-                if not corridor_y1 <= person["cy"] <= corridor_y2:
-                    continue
-                if person["bottom"] < y1 - motorcycle_height * 0.20:
-                    continue
-                if person["bottom"] > y2 + motorcycle_height * 0.15:
-                    continue
-                if person["width"] > motorcycle_width * 1.2:
-                    continue
-                associated.append(person)
+            associated = assignments[int(track_id)]
 
             rider_count = len(associated)
             history = self.history[int(track_id)]

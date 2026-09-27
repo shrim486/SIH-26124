@@ -1,4 +1,5 @@
 import React from "react";
+import { incidentPlace, incidentMessage } from '../../../shared/incidentPresentation';
 import {
   AlertTriangle,
   Car,
@@ -48,15 +49,13 @@ export default function AlertCard({ alert }) {
         </div>
 
         <p>
-          {alert?.message ||
-            "Urban infrastructure issue detected in this area."}
+          {incidentMessage(alert || {})}
         </p>
 
         <div className="alert-meta">
           <span>
             <MapPin size={13} />
-            {Number(alert?.latitude || 0).toFixed(4)},{" "}
-            {Number(alert?.longitude || 0).toFixed(4)}
+            {incidentPlace(alert || {})}
           </span>
 
           {alert?.confidence && (

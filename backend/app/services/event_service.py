@@ -1,10 +1,11 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.models.alert import Alert
 from app.models.event import Event
 from app.models.road_issue import RoadIssue
 from app.models.violation import Violation
+from app.services.alert_service import ensure_event_alert, list_alerts
 from app.services.deduplication import (
     calculate_distance,
     find_duplicate_road_issue,
@@ -68,12 +69,14 @@ VALID_STATUSES = {
 # ============================================================
 
 def _normalize_event_type(event_type: str) -> str:
-    return (
+    normalized = (
         (event_type or "")
         .strip()
         .lower()
         .replace(" ", "_")
     )
+    return {"damaged_road": "road_damage", "without_helmet": "helmet_violation",
+            "congestion": "high_vehicle_density", "bottleneck": "traffic_bottleneck"}.get(normalized, normalized)
 
 
 def _normalize_severity(value: str | None) -> str | None:
@@ -227,6 +230,7 @@ def _find_duplicate_event(
         db.query(Event)
         .filter(
             Event.event_type == event_type,
+            Event.status != "demo",
             Event.timestamp >= cutoff,
         )
         .order_by(Event.timestamp.desc())
@@ -234,6 +238,9 @@ def _find_duplicate_event(
     )
 
     for event in events:
+
+        if _safe_metadata(event.event_metadata).get('is_demo') or event.status in {'resolved', 'closed'}:
+            continue
 
         if (
             event.latitude is None
@@ -259,6 +266,16 @@ def _find_duplicate_event(
 # ============================================================
 
 def create_event(db, data):
+
+    # A known camera supplies its registered vehicle identity. Legacy external IDs remain accepted.
+    if data.camera_id is not None:
+        from app.models.camera import Camera
+        from fastapi import HTTPException
+        camera = db.get(Camera, data.camera_id)
+        if camera:
+            if data.bus_id is not None and data.bus_id != camera.bus_id:
+                raise HTTPException(422, 'The camera is registered to a different bus')
+            data = data.model_copy(update={'bus_id': camera.bus_id})
 
     event_type = _normalize_event_type(
         data.event_type
@@ -306,11 +323,12 @@ def create_event(db, data):
         event_type=event_type,
         latitude=data.latitude,
         longitude=data.longitude,
-    )
+    ) if category != "violation" and not metadata_payload.get('is_demo') else None
 
     if duplicate_event is not None:
 
-        duplicate_event.status = "existing"
+        if duplicate_event.status not in {'open', 'in_progress'}:
+            duplicate_event.status = "existing"
 
         duplicate_event.confidence = max(
             duplicate_event.confidence or 0.0,
@@ -368,6 +386,8 @@ def create_event(db, data):
             _metadata_json(existing_metadata)
         )
 
+        ensure_event_alert(db, duplicate_event, allow_other=True)
+
         db.commit()
         db.refresh(duplicate_event)
 
@@ -401,6 +421,14 @@ def create_event(db, data):
     db.add(event)
     db.flush()
 
+    if metadata_payload.get('is_demo'):
+        event.status = 'demo'
+        alert = ensure_event_alert(db, event)
+        db.commit()
+        db.refresh(event)
+        return {'event': event, 'category': category, 'duplicate': False,
+                'status': 'demo', 'alert': alert}
+
     # ========================================================
     # ROAD ISSUE
     # ========================================================
@@ -429,6 +457,9 @@ def create_event(db, data):
             )
 
             event.status = "existing"
+            metadata_payload['road_issue_id'] = existing_issue.id
+            event.event_metadata = _metadata_json(metadata_payload)
+            ensure_event_alert(db, event, allow_other=True)
 
             db.commit()
 
@@ -460,24 +491,14 @@ def create_event(db, data):
 
         db.add(issue)
         db.flush()
+        metadata_payload['road_issue_id'] = issue.id
+        event.event_metadata = _metadata_json(metadata_payload)
 
         # ----------------------------------------------------
         # CREATE ALERT
         # ----------------------------------------------------
 
-        alert = Alert(
-            alert_type=event_type,
-            message=(
-                f"{event_type.replace('_', ' ').title()} "
-                f"detected ahead"
-            ),
-            latitude=data.latitude,
-            longitude=data.longitude,
-            severity=severity,
-            issue_id=issue.id,
-        )
-
-        db.add(alert)
+        alert = ensure_event_alert(db, event, allow_other=True)
 
         db.commit()
 
@@ -512,6 +533,10 @@ def create_event(db, data):
         )
 
         db.add(violation)
+        db.flush()
+        metadata_payload['violation_id'] = violation.id
+        event.event_metadata = _metadata_json(metadata_payload)
+        ensure_event_alert(db, event)
 
         db.commit()
 
@@ -532,18 +557,7 @@ def create_event(db, data):
 
     if event_type in INCIDENTS:
 
-        alert = Alert(
-            alert_type=event_type,
-            message=(
-                f"{event_type.replace('_', ' ').title()} "
-                f"detected"
-            ),
-            latitude=data.latitude,
-            longitude=data.longitude,
-            severity=severity,
-        )
-
-        db.add(alert)
+        alert = ensure_event_alert(db, event, allow_other=True)
 
         db.commit()
 
@@ -564,18 +578,7 @@ def create_event(db, data):
 
     if event_type in TRAFFIC_EVENTS:
 
-        alert = Alert(
-            alert_type=event_type,
-            message=(
-                f"{event_type.replace('_', ' ').title()} "
-                f"detected"
-            ),
-            latitude=data.latitude,
-            longitude=data.longitude,
-            severity=severity,
-        )
-
-        db.add(alert)
+        alert = ensure_event_alert(db, event, allow_other=True)
 
         db.commit()
 
@@ -610,83 +613,22 @@ def create_event(db, data):
 # ============================================================
 
 def get_statistics(db):
-
-    total_alerts = db.query(Alert).count()
-
-    open_issues = (
-        db.query(RoadIssue)
-        .filter(
-            RoadIssue.status == "open"
-        )
-        .count()
-    )
-
-    resolved_issues = (
-        db.query(RoadIssue)
-        .filter(
-            RoadIssue.status == "resolved"
-        )
-        .count()
-    )
-
-    potholes = (
-        db.query(Event)
-        .filter(
-            Event.event_type == "pothole"
-        )
-        .count()
-    )
-
-    waterlogging = (
-        db.query(Event)
-        .filter(
-            Event.event_type == "waterlogging"
-        )
-        .count()
-    )
-
-    accidents = (
-        db.query(Event)
-        .filter(
-            Event.event_type == "accident"
-        )
-        .count()
-    )
-
-    helmet_violations = (
-        db.query(Event)
-        .filter(
-            Event.event_type == "helmet_violation"
-        )
-        .count()
-    )
-
-    triple_riding = (
-        db.query(Event)
-        .filter(
-            Event.event_type == "triple_riding"
-        )
-        .count()
-    )
-
-    traffic_bottlenecks = (
-        db.query(Event)
-        .filter(
-            Event.event_type == "traffic_bottleneck"
-        )
-        .count()
-    )
-
+    from app.services.issue_service import list_issues
+    from app.services.alert_service import list_alerts
+    issues = list_issues(db)
+    active_alerts = list_alerts(db, active_only=True)
     return {
-        "total_alerts": total_alerts,
-        "open_issues": open_issues,
-        "resolved_issues": resolved_issues,
-        "potholes": potholes,
-        "waterlogging": waterlogging,
-        "accidents": accidents,
-        "helmet_violations": helmet_violations,
-        "triple_riding": triple_riding,
-        "traffic_bottlenecks": traffic_bottlenecks,
+        "total_alerts": len(active_alerts),
+        "open_issues": sum(item['status'] in {'open', 'in_progress'} for item in issues),
+        "resolved_issues": sum(item['status'] in {'resolved', 'closed'} for item in issues),
+        "potholes": sum(item['event_type'] == 'pothole' for item in issues),
+        "waterlogging": sum(item['event_type'] == 'waterlogging' for item in issues),
+        "accidents": sum(item['event_type'] == 'accident' for item in issues),
+        "helmet_violations": sum(item['event_type'] == 'helmet_violation' for item in issues),
+        "triple_riding": sum(item['event_type'] == 'triple_riding' for item in issues),
+        "traffic_bottlenecks": sum(item['event_type'] == 'bottleneck' for item in issues),
+        "demo_issues": sum(item['is_demo'] for item in issues),
+        "real_issues": sum(not item['is_demo'] for item in issues),
     }
 
 
@@ -744,36 +686,7 @@ def get_map_events(db):
 # ============================================================
 
 def get_alerts(db):
-
-    alerts = (
-        db.query(Alert)
-        .order_by(Alert.created_at.desc())
-        .limit(500)
-        .all()
-    )
-
-    return [
-        {
-            "id": alert.id,
-            "alert_type": alert.alert_type,
-            "message": alert.message,
-            "latitude": alert.latitude,
-            "longitude": alert.longitude,
-            "severity": alert.severity,
-            "issue_id": alert.issue_id,
-            "created_at": (
-                alert.created_at.isoformat()
-                if alert.created_at
-                else None
-            ),
-            "expires_at": (
-                alert.expires_at.isoformat()
-                if alert.expires_at
-                else None
-            ),
-        }
-        for alert in alerts
-    ]
+    return list_alerts(db, private=True)
 
 
 # ============================================================
@@ -801,12 +714,12 @@ def get_road_issues(db):
             "severity": issue.severity,
             "status": issue.status,
             "first_detected": (
-                issue.first_detected.isoformat()
+                issue.first_detected.replace(tzinfo=timezone.utc).isoformat()
                 if issue.first_detected
                 else None
             ),
             "last_detected": (
-                issue.last_detected.isoformat()
+                issue.last_detected.replace(tzinfo=timezone.utc).isoformat()
                 if issue.last_detected
                 else None
             ),
@@ -849,7 +762,7 @@ def get_accidents(db):
                 "latitude": event.latitude,
                 "longitude": event.longitude,
                 "timestamp": (
-                    event.timestamp.isoformat()
+                    event.timestamp.replace(tzinfo=timezone.utc).isoformat()
                     if event.timestamp
                     else None
                 ),
@@ -874,65 +787,8 @@ def get_accidents(db):
 # ============================================================
 
 def get_fleet(db):
-
-    try:
-        from app.models.bus import Bus
-        from app.models.camera import Camera
-
-        buses = db.query(Bus).all()
-        cameras = db.query(Camera).all()
-
-        return {
-            "total_buses": len(buses),
-            "total_cameras": len(cameras),
-            "buses": [
-                {
-                    "id": bus.id,
-                    "bus_number": getattr(
-                        bus,
-                        "bus_number",
-                        None,
-                    ),
-                    "registration_number": getattr(
-                        bus,
-                        "registration_number",
-                        None,
-                    ),
-                }
-                for bus in buses
-            ],
-            "cameras": [
-                {
-                    "id": camera.id,
-                    "bus_id": getattr(
-                        camera,
-                        "bus_id",
-                        None,
-                    ),
-                    "camera_number": getattr(
-                        camera,
-                        "camera_number",
-                        None,
-                    ),
-                }
-                for camera in cameras
-            ],
-        }
-
-    except Exception as exc:
-
-        # Keep the dashboard alive if fleet models
-        # are not configured yet.
-        print(
-            f"[WARN] Fleet data unavailable: {exc}"
-        )
-
-        return {
-            "total_buses": 0,
-            "total_cameras": 0,
-            "buses": [],
-            "cameras": [],
-        }
+    from app.services.fleet_service import get_fleet as fleet_overview
+    return fleet_overview(db)
 
 
 # ============================================================
@@ -971,7 +827,7 @@ def get_violations(
             "latitude": violation.latitude,
             "longitude": violation.longitude,
             "timestamp": (
-                violation.timestamp.isoformat()
+                violation.timestamp.replace(tzinfo=timezone.utc).isoformat()
                 if violation.timestamp
                 else None
             ),
@@ -1024,8 +880,18 @@ def update_road_issue_status(
     if not issue:
         return None
 
+    from app.services.issue_service import category, update_issue
+    linked_events = [event for event in db.query(Event).all()
+                     if _safe_metadata(event.event_metadata).get('road_issue_id') == issue.id and category(event)]
+    if linked_events:
+        update_issue(db, linked_events[0].id, normalized_status, 'government', 'Road issue status update')
+
     issue.status = normalized_status
-    issue.last_detected = datetime.utcnow()
+    for event in db.query(Event).filter(Event.event_type == issue.issue_type).all():
+        if _safe_metadata(event.event_metadata).get('road_issue_id') == issue.id:
+            event.status = normalized_status
+    for alert in db.query(Alert).filter(Alert.issue_id == issue.id).all():
+        alert.expires_at = datetime.utcnow() if normalized_status in {'resolved', 'closed'} else None
 
     db.commit()
     db.refresh(issue)
@@ -1039,12 +905,12 @@ def update_road_issue_status(
         "severity": issue.severity,
         "status": issue.status,
         "first_detected": (
-            issue.first_detected.isoformat()
+            issue.first_detected.replace(tzinfo=timezone.utc).isoformat()
             if issue.first_detected
             else None
         ),
         "last_detected": (
-            issue.last_detected.isoformat()
+            issue.last_detected.replace(tzinfo=timezone.utc).isoformat()
             if issue.last_detected
             else None
         ),
@@ -1240,12 +1106,15 @@ def get_analytics(db):
 def get_dashboard(db):
 
     statistics = get_statistics(db)
-    events = get_map_events(db)
-    road_issues = get_road_issues(db)
+    from app.services.issue_service import list_issues
+    events = list_issues(db)
+    road_issues = [dict(item, issue_type=item['event_type'], last_detected=item['timestamp'])
+                   for item in list_issues(db, group='road')]
     alerts = get_alerts(db)
     accidents = get_accidents(db)
     fleet = get_fleet(db)
-    violations = get_violations(db)
+    violations = [dict(item, violation_type=item['event_type'], registration_number=item['reported_registration'])
+                  for item in list_issues(db, group='violations')]
 
     return {
         "statistics": statistics,

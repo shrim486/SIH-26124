@@ -6,6 +6,7 @@ import {
   FileWarning,
   Home,
   Map,
+  Route,
   Menu,
   PlusCircle,
   ShieldCheck,
@@ -25,6 +26,11 @@ export default function UserLayout({ children }) {
       path: "/map",
       label: "Live Map",
       icon: Map,
+    },
+    {
+      path: "/plan-route",
+      label: "Plan Route",
+      icon: Route,
     },
     {
       path: "/report",
@@ -92,18 +98,14 @@ export default function UserLayout({ children }) {
             AUTHORITY ACCESS
           </p>
 
-          <NavLink
-            to="/government-login"
-            className={({ isActive }) =>
-              `nav-link government-nav-link ${
-                isActive ? "active" : ""
-              }`
-            }
+          <a
+            href={import.meta.env.VITE_GOVERNMENT_PORTAL_URL || 'http://127.0.0.1:5174/'}
+            className="nav-link government-nav-link"
             onClick={() => setMobileOpen(false)}
           >
             <ShieldCheck size={19} />
             <span>Government Portal</span>
-          </NavLink>
+          </a>
         </nav>
 
 
@@ -113,8 +115,8 @@ export default function UserLayout({ children }) {
             <span className="status-dot" />
 
             <div>
-              <strong>UrbanIQ Network</strong>
-              <small>System operational</small>
+              <strong>Roads & journeys</strong>
+              <small>Reports, alerts and route planning</small>
             </div>
           </div>
         </div>
@@ -143,18 +145,18 @@ export default function UserLayout({ children }) {
 
           <div>
             <span className="topbar-label">
-              URBAN INTELLIGENCE
+              ROADS & JOURNEYS
             </span>
 
-            <h1>Citizen Safety Portal</h1>
+            <h1>Citizen portal</h1>
           </div>
 
           <div className="topbar-actions">
 
-            <button className="notification-button">
+            <NavLink to="/alerts" className="notification-button" aria-label="View alerts">
               <Bell size={20} />
               <span />
-            </button>
+            </NavLink>
 
             <div className="user-avatar">
               C

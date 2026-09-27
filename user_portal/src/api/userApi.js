@@ -9,8 +9,9 @@ async function apiRequest(
   options = {},
   tokenKey = null
 ) {
+  const storage = tokenKey==='government_token' ? sessionStorage : localStorage;
   const token = tokenKey
-    ? localStorage.getItem(tokenKey)
+    ? storage.getItem(tokenKey)
     : null;
 
   const headers = {
@@ -23,6 +24,7 @@ async function apiRequest(
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    signal: options.signal,
     method: options.method || "GET",
     headers,
     body: options.body
@@ -37,17 +39,18 @@ async function apiRequest(
       const errorData = await response.json();
 
       if (errorData?.detail) {
-        message = errorData.detail;
+        message = Array.isArray(errorData.detail) ? errorData.detail.map(item => item.msg).join('; ') : errorData.detail;
       }
     } catch {
       // Ignore invalid JSON response
     }
 
-    if (response.status === 401 && tokenKey) {
-      localStorage.removeItem(tokenKey);
+    if ((response.status === 401 || response.status === 403) && tokenKey) {
+      storage.removeItem(tokenKey);
 
       if (tokenKey === "government_token") {
-        localStorage.removeItem("government_role");
+        storage.removeItem("government_role");
+        window.dispatchEvent(new Event('government-unauthorized'));
       }
     }
 
@@ -102,13 +105,15 @@ export const governmentApi = {
       );
     }
 
-    localStorage.setItem(
+    localStorage.removeItem('government_token');
+    localStorage.removeItem('government_role');
+    sessionStorage.setItem(
       "government_token",
       data.access_token
     );
 
     if (data.role) {
-      localStorage.setItem(
+      sessionStorage.setItem(
         "government_role",
         data.role
       );
@@ -118,14 +123,19 @@ export const governmentApi = {
   },
 
   logout: () => {
+    sessionStorage.removeItem('government_token');
+    sessionStorage.removeItem('government_role');
     localStorage.removeItem("government_token");
     localStorage.removeItem("government_role");
+    window.dispatchEvent(new Event('government-unauthorized'));
   },
 
   isAuthenticated: () =>
     Boolean(
-      localStorage.getItem("government_token")
+      sessionStorage.getItem("government_token")
     ),
+
+  checkSession: signal => apiRequest('/government/auth-check', {signal}, 'government_token'),
 
   getDashboard: async () =>
     apiRequest(
@@ -197,27 +207,9 @@ export const governmentApi = {
 ============================================================ */
 
 export const userApi = {
-  startVideoAnalysis: async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetch(`${API_BASE_URL}/video-analysis`, {
-      method: "POST",
-      body: formData,
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.detail || "Video analysis failed to start");
-    return data;
-  },
-
-  getVideoAnalysis: async (jobId) => {
-    const response = await fetch(`${API_BASE_URL}/video-analysis/${jobId}`);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.detail || "Could not read video analysis status");
-    return data;
-  },
-
-  videoAnalysisUrl: (jobId) => `${API_BASE_URL}/video-analysis/${jobId}/video`,
-
+  getRecords:(archive = false, signal)=>apiRequest(`/user/records?archive=${archive}`, {signal}),
+  searchPlaces: (query, signal) => apiRequest(`/user/places?q=${encodeURIComponent(query)}`, {signal}),
+  planRoute: (payload, signal) => apiRequest('/user/route', {method:'POST', body:payload, signal}),
   getDashboard: async () =>
     apiRequest("/user/dashboard"),
 

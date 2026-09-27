@@ -1,6 +1,6 @@
 # Model and video assets
 
-Assets remain local and are ignored by Git. A clone contains no weights, videos, output videos, or training data. [assets.json](assets.json) records paths, sizes and SHA-256 hashes of the tested files.
+Saved videos, detected images and model weights are available in versioned GitHub release bundles. `python scripts/setup.py` restores portal evidence and map records; add `--with-models --with-originals` for model weights and full inputs. See [shared video setup](SHARED_VIDEOS.md). Binary assets are ignored in source commits. [release-assets.json](release-assets.json) pins each archive checksum, and [assets.json](assets.json) records the original tested pothole/road-model files.
 
 | Asset | Required location | Source |
 | --- | --- | --- |
@@ -10,7 +10,7 @@ Assets remain local and are ignored by Git. A clone contains no weights, videos,
 
 Download from the respective publisher, create destination directories, and copy files into those locations. Run `python scripts/check_assets.py` to verify them. Use only trusted checkpoints. Another damaged-road checkpoint must expose `D00`, `D10`, `D20` or `damaged_road` classes and needs its own recorded provenance and verification hash.
 
-Recover the damaged-road model's original provenance before redistributing it. Until then, collaborators must supply trusted compatible weights themselves. Redistribution rights for these models/videos have not been established here; check publisher licenses before sharing binaries. Setup uploads and downloads no model binaries.
+The optional model bundle contains the locally supplied damaged-road checkpoint; its original download URL was not recorded. Third-party redistribution terms have not been independently established here. Download availability is not a new license grant; retain publisher attribution and review original terms for your intended use. Default setup downloads saved evidence; `--with-models` additionally downloads model binaries.
 
 For pothole-only inference, only its model and a video are required:
 

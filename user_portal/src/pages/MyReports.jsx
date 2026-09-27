@@ -7,11 +7,14 @@ import StatusBadge from "../components/StatusBadge";
 export default function MyReports() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await userApi.getEvents();
+        setLoading(true); setError('');
+        const data = await userApi.getReports();
 
         setReports(
           Array.isArray(data)
@@ -19,14 +22,14 @@ export default function MyReports() {
             : data?.events || []
         );
       } catch (error) {
-        console.error(error);
+        setError(error.message || 'Could not load reports.');
       } finally {
         setLoading(false);
       }
     }
 
     load();
-  }, []);
+  }, [refresh]);
 
   return (
     <div className="reports-page">
@@ -39,6 +42,8 @@ export default function MyReports() {
       </div>
 
       <div className="reports-card">
+        <button onClick={() => setRefresh(value => value + 1)} disabled={loading}>Refresh reports</button>
+        {error && <p role="alert">{error}</p>}
         {loading ? (
           <div className="empty-state">
             Loading reports...

@@ -1,10 +1,10 @@
-# First GitHub commit
+# Repository and shared assets
 
-Use `AI-POWERED-URBAN-INTELLIGENCE` as the repository root, not the parent desktop workspace. A local Git repository on branch `main` is initialized. No remote, commit, or push was created during preparation.
+Use `AI-POWERED-URBAN-INTELLIGENCE` as the repository root, not the parent desktop workspace. The GitHub repository is [shrim486/SIH-26124](https://github.com/shrim486/SIH-26124), branch `main`.
 
-Included: source, tests, dependency manifests, npm lockfiles, environment examples, setup scripts and CI.
+Included: source, tests, dependency manifests, npm lockfiles, environment examples, setup scripts, CI and the pinned release-asset manifest. The existing waterlogging prototype also includes its small model and videos from the upstream repository.
 
-Ignored and preserved locally: `.env`, weights, input/output media, raw/labeled datasets, SQLite databases, dependencies, build output, logs, caches and old migration notes. Review before committing:
+Larger model/video assets are distributed through [versioned release downloads](SHARED_VIDEOS.md), installed by `scripts/setup.py`. They stay outside Git history. `.env`, operational SQLite databases, dependencies, build output, logs, caches and old migration notes remain private/local. Review before committing:
 
 ```sh
 git status --short
@@ -19,4 +19,4 @@ git diff --cached --stat
 git commit -m "Prepare urban intelligence project"
 ```
 
-No remote URL is assumed. Configure your own GitHub remote when ready. Before sharing model/data binaries separately, establish their provenance and redistribution licenses. No source-code license has been selected; add one when ownership and intended terms are decided.
+Fetch and integrate `origin/main` before pushing; never force-push over teammates' commits. This repository and its releases are public. Government-only application access does not restrict downloaded GitHub assets. Third-party media/model provenance is documented separately; no project-wide source-code license has been selected.

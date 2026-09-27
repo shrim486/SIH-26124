@@ -20,12 +20,16 @@ edge_ai/dataset/**/train/images/*
 edge_ai/dataset/**/train/labels/*
 edge_ai/dataset/**/valid/images/*
 edge_ai/dataset/**/valid/labels/*
+edge_ai/dataset/**/val/images/*
+edge_ai/dataset/**/val/labels/*
 edge_ai/dataset/**/test/images/*
 edge_ai/dataset/**/test/labels/*
 !edge_ai/dataset/**/train/images/.gitkeep
 !edge_ai/dataset/**/train/labels/.gitkeep
 !edge_ai/dataset/**/valid/images/.gitkeep
 !edge_ai/dataset/**/valid/labels/.gitkeep
+!edge_ai/dataset/**/val/images/.gitkeep
+!edge_ai/dataset/**/val/labels/.gitkeep
 !edge_ai/dataset/**/test/images/.gitkeep
 !edge_ai/dataset/**/test/labels/.gitkeep
 
@@ -40,6 +44,8 @@ edge_ai/test_videos/**/*.mkv
 *.onnx
 *.engine
 *.ckpt
+*.download
+edge_ai/models/number_plate/
 
 # Local secrets and OS/editor files
 .env

@@ -1,0 +1,119 @@
+[
+  {
+    "name": "crosswalk",
+    "url": "https://raw.githubusercontent.com/piranha9827/Crosswalks-Detection-using-YOLO/df8d3ffc18692975788dcc90de174581e4fcb214/detection/video/video.mp4",
+    "path": "edge_ai/test_videos/multi_demo/crosswalk.mp4",
+    "sha256": "8515bed333e558d7d331707da6dc3059972470d960143e8dad1d7027888ebae7",
+    "fps": 30.028524205073413,
+    "frames": 519.0,
+    "original_location": "unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "traffic_sign",
+    "url": "https://raw.githubusercontent.com/Rumeysakeskin/YOLO-Darknet-Video-and-Image-Detection-Traffic-Signs/290b7998e437810b2577fcad8778626550371cb3/traffic-sign-test.mp4",
+    "path": "edge_ai/test_videos/multi_demo/traffic_sign.mp4",
+    "sha256": "8b94e9902d352d2720dbb1404d1b7db8ce1389870bb1ca262c4c8ac25a5084ad",
+    "fps": 29.535864978902953,
+    "frames": 56.0,
+    "original_location": "unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "motorcycles",
+    "url": "https://raw.githubusercontent.com/NagaBalaji005/Real-time-helmet-and-Traffic-violation-Detection-system-using-YOLO-and-DEEPSORT/365dc335c3c97acf5e46000cffcac5a8f97ede51/dataset/raw/traffic.mp4",
+    "path": "edge_ai/test_videos/multi_demo/motorcycles.mp4",
+    "sha256": "4d961f4d7190bbc84d2544834ecc0a85a749316ea75e028667c3baf5a428f1b4",
+    "fps": 60.02734579086028,
+    "frames": 240.0,
+    "original_location": "unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "traffic",
+    "url": "https://raw.githubusercontent.com/NagaBalaji005/Real-time-helmet-and-Traffic-violation-Detection-system-using-YOLO-and-DEEPSORT/365dc335c3c97acf5e46000cffcac5a8f97ede51/dataset/raw/traffic_video_original.mp4",
+    "path": "edge_ai/test_videos/multi_demo/traffic.mp4",
+    "sha256": "20adf09031620fc1905ed409b1c64919f260104b2f9517fb28f61b0302bc7c30",
+    "fps": 26.333333333333332,
+    "frames": 715.0,
+    "original_location": "unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "highway",
+    "url": "https://raw.githubusercontent.com/nathanrooy/rpi-urban-mobility-tracker/490323abd7cb533331f61a83cbd3bf92e51ac6fd/data/videos/highway_01.mp4",
+    "path": "edge_ai/test_videos/multi_demo/highway.mp4",
+    "sha256": "32e7917db399ee7971d829d1a5cc5fa6deb3a357c9069254b923e5c6baab5919",
+    "fps": 30.0,
+    "frames": 812.0,
+    "original_location": "unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "queue",
+    "url": "https://raw.githubusercontent.com/GautamKataria/Yolov4-Traffic-congestion-app/6d1c3e50efbf34cf4532d18b320262d9cba19cfd/traffic_congestion.mp4",
+    "path": "edge_ai/test_videos/multi_demo/queue.mp4",
+    "sha256": "38a0203b17edc24d0b6320f0241c2d5ff8d6c990056d602c2ab543947ccebc51",
+    "fps": 29.97002997002997,
+    "frames": 3667.0,
+    "original_location": "Thailand according to the source video title; exact GPS unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "triple_riders",
+    "url": "https://raw.githubusercontent.com/iHubData-Mobility/public-motorcycle-violations/8b67b845e76b77cd8779731166d1b794b6eff808/data/video/3idiots.mp4",
+    "path": "edge_ai/test_videos/multi_demo/triple_riders.mp4",
+    "sha256": "46e2e527f7fb63043a1b7611b19793f93e67ad197f673320238240e0a4cc0df0",
+    "fps": 25.0,
+    "frames": 330.0,
+    "original_location": "unknown unless indicated by publisher",
+    "recorded_at": null,
+    "recording_kind": "Staged film excerpt from 3 Idiots, provided as a detector demo. Not real incident footage."
+  },
+  {
+    "name": "waterlogging",
+    "url": "https://media.telanganatoday.com/wp-content/uploads/2026/06/WhatsApp-Video-2026-06-27-at-15.36.11.mp4",
+    "path": "edge_ai/test_videos/multi_demo/waterlogging.mp4",
+    "sha256": "a0a26edb2bb836b0d6972fa85bf77a812dff637e8ccd2a87cb226b49d5fabd01",
+    "fps": 57.21295293587741,
+    "frames": 796.0,
+    "original_location": "Shaheennagar, Hyderabad, according to the publisher; no exact GPS available",
+    "recorded_at": null,
+    "publisher_page": "https://telanganatoday.com/four-month-drainage-overflow-leaves-shaheennagar-residents-in-distress"
+  },
+  {
+    "name": "video1",
+    "url": "https://raw.githubusercontent.com/kamalesansam/AI-Driven-Dynamic-Traffic-Signal-System/f5edd78f5dca4dd0886ad5b07c89ae978f7f5c52/video1.mp4",
+    "path": "edge_ai/test_videos/multi_demo/video1.mp4",
+    "sha256": "4e4dcd5037ef485ae5824004f57666f62f854e31dc8f0e2e439b2f57378f5dc8",
+    "fps": 29.99568858556494,
+    "frames": 4226.0,
+    "original_location": "unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "video2",
+    "url": "https://raw.githubusercontent.com/kamalesansam/AI-Driven-Dynamic-Traffic-Signal-System/f5edd78f5dca4dd0886ad5b07c89ae978f7f5c52/video2.mp4",
+    "path": "edge_ai/test_videos/multi_demo/video2.mp4",
+    "sha256": "b871158d56885a6cc18b5b82ce9488905d2ecb309168dd477a903da73a29f142",
+    "fps": 29.99383350462487,
+    "frames": 4864.0,
+    "original_location": "unknown",
+    "recorded_at": null
+  },
+  {
+    "name": "slow_riders",
+    "url": "https://drive.google.com/file/d/1javPbdDx2GuZDmAwMQCX4WEDnPpUeGer/view",
+    "download_url": "https://drive.usercontent.google.com/download?id=1javPbdDx2GuZDmAwMQCX4WEDnPpUeGer&export=download&confirm=t",
+    "publisher_page": "https://github.com/pratham-jaiswal/two-wheeler-traffic-rule-violation",
+    "path": "edge_ai/test_videos/multi_demo/slow_riders.mp4",
+    "sha256": "57edd90414438269bf69dc026efcf5f00c36b554606795fe5d0334e9c5015831",
+    "fps": 30.0,
+    "frames": 22437,
+    "original_location": "Road signs and plates indicate West Bengal, India; exact GPS unverified",
+    "recorded_at": null,
+    "camera": "dashcam",
+    "max_dimension": 1920,
+    "selection_note": "Opening 16 seconds of on-bike footage includes helmeted riders and bare-headed pillion riders at close range. Normal source playback speed; original footage retained."
+  }
+]

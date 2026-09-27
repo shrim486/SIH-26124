@@ -1,0 +1,22 @@
+.operations-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(320px,1fr);gap:20px;margin:20px 0}
+.operations .panel{padding:22px;min-width:0}
+.operations-map{height:430px;width:100%;border-radius:14px;z-index:0;background:#152338}
+.operations .stats-grid .stat-card{display:flex;gap:12px;justify-content:space-between;align-items:center}
+.operations .stats-grid strong{font-size:28px}
+.operations-actions{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0;align-items:center}
+.operations a{color:#7dd3fc;text-decoration:underline;text-underline-offset:3px}
+.operations-note{padding:14px;background:#142336;border:1px solid #314863;border-radius:10px;color:#cbd5e1;line-height:1.6}
+.operations .filter-bar{display:flex;flex-wrap:wrap;align-items:center;gap:18px}
+.operations label{display:block;line-height:1.6}
+.operations textarea{display:block;width:100%;min-height:75px;margin-top:6px}
+.operations input,.operations select,.operations textarea{background:#101c2c;color:#f1f5f9;border:1px solid #415269;border-radius:8px;padding:9px;max-width:100%;box-sizing:border-box}
+.operations input[type=checkbox]{width:auto}
+.operations button{cursor:pointer}
+.operations button:disabled{opacity:.55;cursor:wait}
+.operations details{border-top:1px solid #334155;margin-top:20px;padding-top:14px}
+.operations summary{cursor:pointer}
+.operations form{display:grid;gap:12px}
+.operations h2{margin:0 0 16px}
+.operations .issue-detail{max-height:800px;overflow:auto}
+.operations .data-table td{vertical-align:middle}
+@media(max-width:1050px){.operations-grid{grid-template-columns:1fr}.operations-map{height:360px}}

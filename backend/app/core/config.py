@@ -15,6 +15,10 @@ class Settings(BaseSettings):
 
     GOVERNMENT_PASSWORD: str
 
+    ROUTING_BASE_URL: str = 'https://routing.openstreetmap.de/routed-car'
+    GEOCODING_BASE_URL: str = 'https://photon.komoot.io'
+    MAP_USER_AGENT: str = 'UrbanIQ-RoutePlanner/1.0 (https://github.com/shrim486/SIH-26124)'
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

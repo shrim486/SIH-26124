@@ -1,0 +1,189 @@
+{
+  "development_subset": true,
+  "limit_per_split": 12,
+  "samples": [
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--1-_jpg.rf.b3959ddb964e8243a89487bddc7b0cfd.jpg",
+      "group": "Strisce--1-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--10-_jpg.rf.4c8950d93b873e6d08d17861139f2131.jpg",
+      "group": "Strisce--10-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--100-_jpg.rf.5bf3a31718db27379427d758099f7db0.jpg",
+      "group": "Strisce--100-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--101-_jpg.rf.bae2830f4e39385a386d22d54ca3dee1.jpg",
+      "group": "Strisce--101-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--102-_jpg.rf.a032e65cc952253c26cbdc854d4abd1a.jpg",
+      "group": "Strisce--102-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--103-_jpg.rf.7426fe33922a3c222cd87498d48a1796.jpg",
+      "group": "Strisce--103-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--104-_jpg.rf.0b510651b651a4a92b69203bc1e710fb.jpg",
+      "group": "Strisce--104-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--105-_jpg.rf.9ec30cccce5af0816a1fd6b846f0619b.jpg",
+      "group": "Strisce--105-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--106-_jpg.rf.086e1d18bdf0e009c5fa28156234ffca.jpg",
+      "group": "Strisce--106-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--107-_jpg.rf.65852e081bb15ea9dcb056364cb5f93d.jpg",
+      "group": "Strisce--107-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--108-_jpg.rf.521b7024e4db51ef9ea366aad6342f63.jpg",
+      "group": "Strisce--108-"
+    },
+    {
+      "split": "train",
+      "file": "training/training_dataset/train/images/Strisce--109-_jpg.rf.35da873c2eeb6715c4d385cde6581f12.jpg",
+      "group": "Strisce--109-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--110-_jpg.rf.785df7eacd1bbfafd6039d28acba281e.jpg",
+      "group": "Strisce--110-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--112-_jpg.rf.af5cbc892dc454a93962c1ecc87acf22.jpg",
+      "group": "Strisce--112-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--114-_jpg.rf.2a6b39426bf3be36840f4e5269f3bc7f.jpg",
+      "group": "Strisce--114-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--116-_jpg.rf.581077fd64858a32bc413c527f0fcdcb.jpg",
+      "group": "Strisce--116-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--117-_jpg.rf.980adfb36c8bef9d8d52cced3ff59b94.jpg",
+      "group": "Strisce--117-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--118-_jpg.rf.3314f49f59250bda788e0c7fdcc9477c.jpg",
+      "group": "Strisce--118-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--119-_jpg.rf.6f57c8bc4b8f3141e0e983571e4a09e7.jpg",
+      "group": "Strisce--119-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--120-_jpg.rf.0e023d73149f89b1d35ba36585d3d030.jpg",
+      "group": "Strisce--120-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--123-_jpg.rf.10bce9b1b5189dca83d0971091dea6ec.jpg",
+      "group": "Strisce--123-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--125-_jpg.rf.ad37d097cec7e1f94b899a6ad14acf0d.jpg",
+      "group": "Strisce--125-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--126-_jpg.rf.9edc5ae669966d17113d171ff82bf275.jpg",
+      "group": "Strisce--126-"
+    },
+    {
+      "split": "valid",
+      "file": "training/training_dataset/valid/images/Strisce--129-_jpg.rf.b63cf1c8ef3926fb0e22391a15e48781.jpg",
+      "group": "Strisce--129-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--111-_jpg.rf.94c80e745710232f2b98f9ccbb8c1ad5.jpg",
+      "group": "Strisce--111-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--113-_jpg.rf.1fcdddf1cf3d22ab22bf5b31bdd62a1e.jpg",
+      "group": "Strisce--113-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--121-_jpg.rf.eca474bcc68c9cb7db77a031b09a8587.jpg",
+      "group": "Strisce--121-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--124-_jpg.rf.8438fe4cd7977944bdd5f83197daa968.jpg",
+      "group": "Strisce--124-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--128-_jpg.rf.b2b5a9c6bc81ad75b95f695c28b6544f.jpg",
+      "group": "Strisce--128-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--13-_jpg.rf.8d28764c6fb81e9140d5bfd59818d0ba.jpg",
+      "group": "Strisce--13-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--130-_jpg.rf.299f9007e33a0440e468d39cc1ce6cc4.jpg",
+      "group": "Strisce--130-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--131-_jpg.rf.0060561f06eb69082b06f9cca77865bd.jpg",
+      "group": "Strisce--131-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--132-_jpg.rf.dbbebc9b54da6f57db2ba160a9b12a30.jpg",
+      "group": "Strisce--132-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--134-_jpg.rf.f7e5ca2d888f5e796028cf5a07e48901.jpg",
+      "group": "Strisce--134-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--136-_jpg.rf.d23034bf7ede0aa14784a8a0123b7981.jpg",
+      "group": "Strisce--136-"
+    },
+    {
+      "split": "test",
+      "file": "test/test_dataset/test/images/Strisce--137-_jpg.rf.cef268d77cb760b18d24c8195f8e6d4a.jpg",
+      "group": "Strisce--137-"
+    }
+  ],
+  "source": "https://github.com/piranha9827/Crosswalks-Detection-using-YOLO",
+  "revision": "df8d3ffc18692975788dcc90de174581e4fcb214",
+  "license": "GPL-3.0 (publisher repository)"
+}
