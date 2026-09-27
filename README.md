@@ -109,7 +109,7 @@ npm --prefix user_portal run build
 npm --prefix government_portal run build
 ```
 
-The AI unit tests use fixtures and require no model downloads. Backend tests use isolated state and exercise upload profile validation. GitHub Actions is configured for tests, lint, and frontend builds; it has not run on GitHub for these changes yet. Existing lint warnings are non-blocking.
+The AI unit tests use fixtures and the waterlogging tests use the prototype weights already included in Git. Backend tests use isolated state and exercise upload profile validation. GitHub Actions checks the AI, asset installer and backend tests, plus lint and both frontend builds. Existing lint warnings are non-blocking.
 
 ## Layout
 

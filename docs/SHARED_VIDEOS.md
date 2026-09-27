@@ -37,6 +37,9 @@ The three files are on the [asset release](https://github.com/shrim486/SIH-26124
 | `urban-iq-models.zip` | Local model weights, OCR assets and model configuration | Running new detections |
 | `urban-iq-originals.zip` | Full source videos, excluding duplicate rider-candidate downloads | Reprocessing longer recordings |
 
+The default portal download is about **157 MiB**. The optional model and original
+video bundles add about **986 MiB** and **627 MiB** respectively.
+
 Exact byte sizes, SHA-256 checksums and download URLs are versioned in
 [release-assets.json](release-assets.json). Setup checks the archive and every
 installed file, rejects unsafe archive paths, and refuses to overwrite changed
