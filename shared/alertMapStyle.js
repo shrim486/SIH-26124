@@ -7,7 +7,7 @@ const colours = {
   congestion: '#0d9488', bottleneck: '#0d9488',
 };
 export const issueColour = kind => colours[kind] || '#0d9488';
-export const archivedAlert = item => item.active === false || ['resolved','closed'].includes(item.status || item.issue_status);
+export const archivedAlert = item => !item.evidence_only && (item.active === false || ['resolved','closed'].includes(item.status || item.issue_status));
 export const alertColour = item => archivedAlert(item) ? '#64748b' : issueColour(item.alert_type || item.event_type);
 export const alertMarkerStyle = (item, selected = false) => ({
   color: '#0f172a', weight: selected ? 4 : item.on_route ? 3.5 : 2.5,

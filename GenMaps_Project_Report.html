@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>AI-Powered Mobile Urban Intelligence Platform Report</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#ccc;font-family:"Times New Roman",Times,serif;font-size:10pt;color:#000;line-height:1.44}
+.page{width:215mm;margin:18px auto;background:#fff;padding:20mm 15mm 22mm 15mm;box-shadow:0 2px 14px rgba(0,0,0,.28)}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none;padding:20mm 15mm 22mm 15mm}}
+
+/* TITLE BLOCK */
+.title{text-align:center;font-size:16pt;font-weight:bold;line-height:1.3;margin-bottom:6px}
+.authors{text-align:center;font-size:11pt;margin-bottom:2px}
+.affil{text-align:center;font-size:9pt;line-height:1.5;margin-bottom:4px}
+.course{text-align:center;font-size:8.5pt;font-style:italic;margin-bottom:9px}
+hr{border:none;border-top:1px solid #000;margin:7px 0}
+hr.light{border-top:0.5px solid #666;margin:5px 0}
+
+/* ABSTRACT */
+.abs-wrap{margin:7px 26px 0 26px;font-size:9pt;line-height:1.42}
+.abs-wrap .lbl{font-weight:bold;font-style:italic}
+.kw-line{margin:5px 26px 0 26px;font-size:9pt;line-height:1.42}
+.kw-line em{font-weight:bold;font-style:italic}
+
+/* TWO COLUMNS */
+.cols{display:grid;grid-template-columns:1fr 1fr;column-gap:12px;margin-top:8px;align-items:start}
+.full{grid-column:1/-1}
+
+/* HEADINGS */
+h2{font-size:10pt;font-weight:bold;text-align:center;text-transform:uppercase;margin:9px 0 4px;letter-spacing:.025em}
+h3{font-size:10pt;font-weight:bold;font-style:italic;margin:7px 0 3px}
+
+/* BODY */
+p{font-size:9.5pt;text-align:justify;line-height:1.42;margin-bottom:5px}
+ul,ol{font-size:9.5pt;margin:3px 0 5px 14px;line-height:1.42}
+li{margin-bottom:2px}
+code{font-family:"Courier New",monospace;font-size:8pt}
+
+/* FIGURES */
+.fig{margin:7px 0 3px;text-align:center}
+.fig img{display:block;margin:0 auto;max-width:100%}
+.fig-cap{font-size:8pt;text-align:center;margin-top:3px;line-height:1.35}
+
+/* TABLES — clean IEEE style, no color */
+.tbl-wrap{margin:6px 0 5px}
+.tbl-cap{font-size:8.5pt;font-weight:bold;text-align:center;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+table{width:100%;border-collapse:collapse;font-size:8pt;line-height:1.35}
+thead tr th{border-top:1.5px solid #000;border-bottom:1px solid #000;padding:3px 5px;font-weight:bold;text-align:left;background:none}
+td{padding:2px 5px;vertical-align:top}
+tbody tr:last-child td{border-bottom:1.5px solid #000}
+
+/* ALGORITHM */
+.algo{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:5px 8px;margin:6px 0 5px;font-size:8.5pt;line-height:1.48}
+.algo-hd{font-weight:bold;font-style:italic;border-bottom:.5px solid #888;padding-bottom:3px;margin-bottom:4px}
+.i1{padding-left:14px}
+.i2{padding-left:28px}
+.kw{font-weight:bold;font-style:italic}
+
+/* EQUATION */
+.eq{display:flex;align-items:center;justify-content:center;gap:12px;margin:5px 0;font-size:9.5pt;font-style:italic}
+.eq-n{font-style:normal;font-size:9pt;margin-left:auto;padding-right:2px}
+
+/* REFS */
+.refs p{font-size:8pt;text-align:justify;line-height:1.44;margin-bottom:2px}
+
+/* NOTE */
+.note{border-left:2px solid #555;padding:3px 8px;margin:5px 0;font-size:9pt;font-style:italic;line-height:1.4}
+
+/* no-break utility */
+.nb{break-inside:avoid}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ===================== TITLE ===================== -->
+<div class="title">AI-Powered Mobile Urban Intelligence Platform Using Public Transport Fleet</div>
+<div class="authors">Diksha</div>
+<div class="affil">School of Computer Science and Engineering, Vellore Institute of Technology, Vellore, Tamil Nadu, India</div>
+<div class="course">Project Report — CS 7081 Advanced Machine Learning Systems &nbsp;|&nbsp; Academic Year 2025–26</div>
+<hr/>
+
+<!-- ===================== ABSTRACT ===================== -->
+<div class="abs-wrap">
+<span class="lbl">Abstract — </span>Urban road infrastructure in developing cities suffers from delayed hazard reporting, reactive maintenance schedules, and fragmented information flow between citizens and government departments. This paper presents an AI-powered mobile urban intelligence platform that leverages public transport fleet vehicles as moving sensor nodes. Dashcams and fixed cameras mounted on buses continuously capture road footage, which is processed locally by a twelve-model edge AI inference suite capable of detecting potholes, road damage, waterlogging, zebra crossings, traffic signs, accident scenes, license plates, helmet violations, triple riding, congestion, and bottlenecks. Detected events are ingested through a FastAPI backend into a shared SQLite database and surfaced on dual React portals — one for citizens and one for government operators. Annotated H.264 video evidence and per-frame detection records are linked to GPS-stamped incident map pins. Local validation on a 240-frame, 1280×720 dashcam clip confirmed that eight of twelve detection types produced candidates, with the crosswalk model achieving 100% precision and recall on a held-out test subset. The platform supports government fleet monitoring, role-based access control, and a full audit trail of case status changes — all running locally without cloud dependency.
+</div>
+<div class="kw-line"><em>Index Terms</em> — Pothole Detection, Road Damage, YOLO, ONNX, Edge AI, Urban Intelligence, Public Transport Fleet, Helmet Violation, FastALPR, FastAPI, React, Incident Management, Fleet Monitoring.</div>
+<hr/>
+
+<!-- ===================== BODY ===================== -->
+<div class="cols">
+
+<!-- ============ I. INTRODUCTION ============ -->
+<div class="full"><h2>I. Introduction</h2></div>
+
+<div>
+<p>Urban road networks in rapidly growing cities present a persistent maintenance challenge. Potholes, waterlogged roads, cracked pavements, and traffic violations are endemic — yet the reporting mechanisms that exist remain largely manual, slow, and decentralized. Citizens rarely have a direct channel to flag hazards in real time, and municipal departments lack the tooling to triage, assign, and track individual incident resolutions with supporting visual evidence.</p>
+<p>Public transport fleets, such as city buses, traverse virtually every arterial and secondary road in a city on a daily basis. Equipping these vehicles with forward-facing dashcams and GPS transponders transforms them into a distributed, self-updating sensor network at zero incremental infrastructure cost. When combined with on-device AI inference capable of identifying road hazards in real time, this creates a continuous, city-wide road health monitoring system.</p>
+<p>Advances in lightweight deep learning — particularly YOLO-family object detectors [1] and ONNX-format portable inference runtimes [2] — make it feasible to run multi-class road analysis on commodity hardware without cloud connectivity. FastAPI [3] provides a suitable local deployment framework for the backend, and React [4] enables responsive citizen-facing and government-facing web portals.</p>
+<p>The primary gap in the literature is a system that combines all three capabilities — real-time fleet-based edge inference, structured backend event management, and collaborative citizen-government web portals — into a single, reproducible, locally deployable platform. This paper presents such a system. The main contributions are:</p>
+<ul>
+  <li>A twelve-model local inference suite on ONNX, YOLOv8, RDD, YOLO-World, and FastALPR, producing per-frame JSONL records and annotated H.264 video.</li>
+  <li>A FastAPI + SQLite backend with deduplication, JWT government authentication, byte-range media streaming, and a complete status-history audit trail.</li>
+  <li>A citizen portal with a live incident map, route planner with hazard weighting, and a real-time safety alert feed.</li>
+  <li>A government portal with a detected issues map, fleet and GPS tracking, per-incident evidence viewer, and case management workflows.</li>
+  <li>A shared incident record model keeping map pins, alert counts, and video evidence synchronized across both portals in real time.</li>
+</ul>
+<p>Section II surveys related work. Section III presents the system architecture. Section IV gives experimental results. Section V covers deployment and configuration. Section VI concludes.</p>
+</div>
+
+<!-- ============ II. RELATED WORK ============ -->
+<div>
+<h2>II. Related Work</h2>
+<p>Road surface anomaly detection using deep learning has been studied extensively. Fox et al. [5] demonstrated CNN-based pothole segmentation from stereo camera footage with 88% pixel accuracy, but their approach required calibrated stereo hardware unavailable on standard fleet dashcams. The Road Damage Dataset benchmark (RDD2022) [6] established crack detection baselines using YOLOv5 variants, reporting F1 scores above 0.75 for longitudinal and transverse crack classes on Japanese and Indian roads.</p>
+<p>Helmet and traffic violation detection specifically for Indian conditions was addressed by Majumder et al. [7], who proposed a multi-stage pipeline achieving 91% helmet classification accuracy. Their system, however, produced no GPS-linked publishable evidence and lacked any plate OCR integration. More broadly, violation detection systems reviewed by Nafi et al. [8] rarely combine license plate recognition with helmet violation detection in a single inference pass.</p>
+<p>Smart-city dashboards such as the IBM Intelligent Operations Center [9] aggregate diverse sensor streams but depend on proprietary cloud APIs and significant infrastructure investment, making them inaccessible to most municipal governments. Crowdsourced platforms such as FixMyStreet [10] collect citizen reports efficiently but offer no AI-based verification of submitted incidents and no structured government case management workflow.</p>
+<p>YOLO-World [11] introduced open-vocabulary object detection through vision-language alignment, enabling zero-shot identification of classes such as "waterlogged road" without task-specific fine-tuning. FastALPR [12] provides an end-to-end ONNX license plate detection and CCT OCR pipeline suitable for fully offline, fleet-side deployment.</p>
+
+<div class="tbl-wrap nb">
+<div class="tbl-cap">Table I.&nbsp; Comparison of Related Urban Monitoring Systems</div>
+<table>
+<thead><tr><th>System</th><th>Detection Scope</th><th>Local Inference</th><th>Gov. Portal</th><th>Fleet GPS</th></tr></thead>
+<tbody>
+<tr><td>Fox et al. [5]</td><td>Potholes only</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>RDD-YOLO [6]</td><td>Road cracks</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>Majumder et al. [7]</td><td>Helmet violation</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>IBM IOP [9]</td><td>Multi-sensor</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>FixMyStreet [10]</td><td>None (manual)</td><td>N/A</td><td>Yes</td><td>No</td></tr>
+<tr><td><strong>Proposed Platform</strong></td><td><strong>12 types</strong></td><td><strong>Yes</strong></td><td><strong>Yes</strong></td><td><strong>Yes</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>No existing work integrates fleet-based local inference, dual-portal web deployment, and GPS-linked government case management into a single reproducible open-source system. The proposed platform fills this gap.</p>
+</div>
+
+<!-- ============ III. METHODOLOGY ============ -->
+<div class="full"><h2>III. System Architecture and Methodology</h2></div>
+
+<!-- FIG 1 — Architecture -->
+<div class="full fig nb">
+  <img src="C:\Users\diksh\.gemini\antigravity\brain\c9a73195-a573-4e28-a74b-6de307155925\report_imgs\fig1_arch.png" style="width:100%;max-height:260px;object-fit:contain"/>
+  <div class="fig-cap">Fig. 1.&nbsp; Overall system architecture. Fleet vehicles feed dashcam footage and GPS telemetry into the Edge AI pipeline, which publishes structured events to the FastAPI backend. Both the Citizen and Government portals draw from the same shared incident records.</div>
+</div>
+
+<div>
+<h3>A. System Overview</h3>
+<p>The platform is organized into four loosely coupled layers communicating through REST APIs (Fig. 1). The <em>Edge AI layer</em> (<code>edge_ai/</code>) runs all inference locally on fleet vehicles or an analysis workstation using pre-trained model weights. The <em>FastAPI backend</em> (<code>backend/</code>) manages event persistence, deduplication, authentication, alert propagation, and media access control. The <em>Citizen Portal</em> (React, Vite, port 5173) provides the public-facing incident map and reporting interface. The <em>Government Portal</em> (React, Vite, port 5174) provides authenticated case management, fleet monitoring, and evidence review. On Windows, all three services are launched simultaneously via a single PowerShell script (<code>start.ps1</code>), which handles virtual environment selection, port conflict detection, and PID logging under <code>.runtime/</code>.</p>
+
+<h3>B. Fleet as a Sensor Network</h3>
+<p>Each public transport bus in the fleet is equipped with a front-facing dashcam and a GPS transponder. As buses travel their fixed routes, the dashcam records continuous footage. At scheduled stops or via on-board compute, the footage is processed by the edge inference suite. The resulting detection records — including bounding-box coordinates, confidence scores, frame timestamps, and GPS positions from the transponder at the moment of detection — are uploaded to the backend via the event ingestion API endpoint. This architecture transforms every bus journey into an autonomous road health survey.</p>
+
+<h3>C. Edge AI Inference Pipeline</h3>
+<p>The inference suite implements a composable task architecture in which each of the twelve detection tasks is an independent module receiving decoded video frames and returning structured prediction records. Fig. 2 shows the processing flow. A configurable <code>--road-bottom</code> parameter (default 1.0; 0.68 recommended for the supplied dashcam, whose dashboard begins at approximately 68% of image height) suppresses predictions from the vehicle interior. Output is encoded in H.264/yuv420p using OpenCV's VideoWriter, producing annotated, audio-free MP4 files with confidence-labeled bounding boxes on each frame.</p>
+</div>
+
+<!-- FIG 2 — Pipeline -->
+<div>
+<div class="fig nb">
+  <img src="C:\Users\diksh\.gemini\antigravity\brain\c9a73195-a573-4e28-a74b-6de307155925\report_imgs\fig2_pipeline.png" style="width:100%;max-height:190px;object-fit:contain"/>
+  <div class="fig-cap">Fig. 2.&nbsp; Edge AI detection pipeline. Each decoded frame passes through preprocessing, parallel inference across up to twelve active model tasks, post-processing (NMS, tracking), and H.264 encoding with annotated bounding boxes.</div>
+</div>
+
+<h3>D. Detection Model Inventory</h3>
+<p>Table II summarizes the twelve supported detection tasks, their underlying model backends, and the scope of local validation performed. Tasks are selected via the <code>--tasks</code> CLI flag or through the Video Analysis profile selector in the government portal. YOLO-World text embeddings are cached locally after first load to avoid reloading the CLIP encoder on subsequent runs.</p>
+
+<div class="tbl-wrap nb">
+<div class="tbl-cap">Table II.&nbsp; Detection Tasks, Models, and Validation Scope</div>
+<table>
+<thead><tr><th>Task</th><th>Model Backend</th><th>Validation Scope</th></tr></thead>
+<tbody>
+<tr><td>Pothole</td><td>Custom ONNX</td><td>Checked on 240-frame dashcam clip</td></tr>
+<tr><td>Road Damage</td><td>RDD Checkpoint</td><td>Longitudinal, transverse, alligator cracks</td></tr>
+<tr><td>Waterlogging</td><td>YOLO-World prompts</td><td>Zero-shot experimental candidate detection</td></tr>
+<tr><td>Road Divider</td><td>YOLO-World prompts</td><td>Broad barrier candidates; geometry not guaranteed</td></tr>
+<tr><td>Zebra Crossing</td><td>YOLOv8m supervised</td><td>100% P/R on upstream held-out subset</td></tr>
+<tr><td>Traffic Sign</td><td>YOLO-World</td><td>Localization only; sign meaning not classified</td></tr>
+<tr><td>Accident</td><td>Public YOLOv8x</td><td>Visual candidate scenes; no crash confirmation</td></tr>
+<tr><td>Plate / OCR</td><td>FastALPR + CCT OCR</td><td>Local OCR; accuracy varies by plate script</td></tr>
+<tr><td>Helmet</td><td>Local YOLOv8n</td><td>Best head per tracked motorcycle</td></tr>
+<tr><td>Triple Riding</td><td>Geometric/temporal rules</td><td>Candidate violation; occlusion causes errors</td></tr>
+<tr><td>Congestion</td><td>Persistent count rules</td><td>Fixed-camera only; not calibrated in km/h</td></tr>
+<tr><td>Bottleneck</td><td>Queue rules + zones</td><td>Requires user-defined upstream/downstream zones</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Algorithm 1 — full width -->
+<div class="full">
+<div class="algo nb">
+<div class="algo-hd">Algorithm 1:&nbsp; Multi-Task Video Analysis Suite</div>
+<span class="kw">Input:</span> Video path <em>V</em>, task set <em>T</em>, road-bottom threshold <em>r</em><br/>
+<span class="kw">Output:</span> Folder containing <em>annotated.mp4</em>, <em>detections.jsonl</em>, <em>summary.json</em><br/>
+1.&nbsp; Open <em>V</em>; read FPS, resolution, and total frame count<br/>
+2.&nbsp; Initialise all detectors in <em>T</em>; load ONNX/checkpoint weights into memory<br/>
+3.&nbsp; Cache YOLO-World text embeddings where applicable<br/>
+4.&nbsp; <span class="kw">For each</span> decoded frame <em>f</em>:<br/>
+<span class="i1">a.&nbsp; Mask out rows below road-bottom threshold <em>r</em></span><br/>
+<span class="i1">b.&nbsp; Run each active detector on <em>f</em>; collect raw bounding-box predictions</span><br/>
+<span class="i1">c.&nbsp; Apply Non-Maximum Suppression; filter predictions below confidence threshold</span><br/>
+<span class="i1">d.&nbsp; Update vehicle and person tracker state across frames</span><br/>
+<span class="i1">e.&nbsp; Evaluate temporal rules for triple-riding, congestion, and bottleneck tasks</span><br/>
+<span class="i1">f.&nbsp; Draw labeled bounding boxes on <em>f</em>; encode frame to H.264 stream</span><br/>
+<span class="i1">g.&nbsp; Append structured detection record to JSONL output</span><br/>
+5.&nbsp; Write <em>summary.json</em> with per-task candidate counts, frame count, and FPS<br/>
+6.&nbsp; Decode all output frames; verify H.264/yuv420p encoding integrity<br/>
+7.&nbsp; Return output directory path for backend publication
+</div>
+</div>
+
+<div>
+<h3>E. FastAPI Backend</h3>
+<p>The backend (<code>backend/</code>) is a FastAPI application using SQLite for persistence via SQLAlchemy ORM. It exposes REST endpoints for event ingestion, road issue management, government authentication (JWT Bearer), fleet GPS operations, alert management, and byte-range media streaming. Event deduplication is enforced at ingestion: a repeated publication of the same detection segment reuses the existing database record rather than creating a duplicate map pin. The <code>AlertEvent</code> table links published major hazards — potholes, accidents, waterlogging, and no-helmet violations — to their source events, enabling automatic alert propagation to the citizen feed.</p>
+</div>
+
+<div>
+<h3>F. Citizen Portal</h3>
+<p>The citizen React portal provides an interactive Leaflet.js incident map with hazard-type filters, a demo-data toggle, and shareable focused incident URLs. The route planner accepts a pickup, a drop-off, and up to three ordered intermediate waypoints, scoring candidate routes by a weighted combination of travel time and active hazard density (Equation 1 in Section V-D). A safety alert feed polls the backend every 15 seconds, preserving the map viewport between unchanged poll cycles. Citizens can also submit new incident reports with coordinate validation directly from the portal.</p>
+
+<h3>G. Government Portal</h3>
+<p>The government portal requires JWT authentication. It provides a Detected Issues Map showing only actionable cases; per-issue evidence pages with embedded annotated video (byte-range streaming), detected frame images, and frame-seeking timestamp links; case status management with optional notes and a full per-case audit history; fleet registration with GPS position tracking and stale-detection (positions older than two minutes are marked stale); and camera health status management. A Videos and Images library at <code>/ai-results</code> aggregates evidence across all actionable issues in a single browsable view. Resolving an issue expires its public alert; reopening restores the same alert identifier, maintaining continuity in the citizen feed.</p>
+
+<div class="note">Evidence — annotated video, detected frames, and license plate OCR text — is accessible only to authenticated government users. Public alert feeds and citizen map pins contain no private plate readings. OCR output is always displayed as an unverified review candidate requiring manual inspection by a government officer.</div>
+</div>
+
+<!-- ============ IV. EXPERIMENTAL RESULTS ============ -->
+<div class="full"><h2>IV. Experimental Analysis and Results</h2></div>
+
+<div>
+<h3>A. Experimental Setup</h3>
+<p>All experiments were conducted on a consumer-grade laptop CPU with no GPU, running Windows 11 with Python 3.10, Node.js 22.12, and the project virtual environment. The primary test clip is a ten-second forward-facing dashcam recording at 1280×720 resolution and 24 FPS, yielding 240 frames. The footage shows real Bengaluru road conditions; all GPS coordinates used in the platform demonstration are simulated and explicitly labeled as assigned positions, since the source recordings carry no verified GPS telemetry.</p>
+
+<div class="tbl-wrap nb">
+<div class="tbl-cap">Table III.&nbsp; Inference Run Configuration</div>
+<table>
+<thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Frames processed</td><td>240 / 240 (100%)</td></tr>
+<tr><td>Video resolution</td><td>1280 × 720 (HD)</td></tr>
+<tr><td>Frame rate</td><td>24 FPS</td></tr>
+<tr><td>Total inference time (all models, CPU)</td><td>1,775 s (~29.6 min)</td></tr>
+<tr><td>Output encoding</td><td>H.264 / yuv420p, no audio</td></tr>
+<tr><td>Road-bottom threshold applied</td><td>0.68 (68% of image height)</td></tr>
+<tr><td>Accident confidence threshold</td><td>0.60 (post-calibration)</td></tr>
+<tr><td>Processing hardware</td><td>CPU only, no GPU acceleration</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>B. Detection Performance</h3>
+<p>Eight of the twelve tasks produced at least one candidate on the primary dashcam clip: pothole, road damage, waterlogging, zebra crossing, traffic sign, accident, number plate, and helmet. Road dividers and triple riding produced no usable positive detections on the tested video. Congestion and bottleneck analyses completed without meeting their queue thresholds, which is expected for dashcam footage — both tasks require a fixed overhead camera. Fig. 3 shows precision, recall, and F1-score for the six tasks with available probe results.</p>
+</div>
+
+<!-- FIG 3 — Bar chart -->
+<div>
+<div class="fig nb">
+  <img src="C:\Users\diksh\.gemini\antigravity\brain\c9a73195-a573-4e28-a74b-6de307155925\report_imgs\fig3_results.png" style="width:100%;max-height:220px;object-fit:contain"/>
+  <div class="fig-cap">Fig. 3.&nbsp; Detection validation results. Precision (solid black), Recall (hatched), and F1-Score (grey) are shown per detection task. Zebra Crossing achieves 100% on the upstream held-out subset. All other values are from available probe or publisher demo sets, not independent benchmarks.</div>
+</div>
+
+<h3>C. Helmet and Plate Evidence Results</h3>
+<p>The rider demonstration uses the opening 16 seconds of a publicly available on-bike video (1920×1080, resampled to 12 FPS, 192 analyzed frames). The helmet and FastALPR models ran jointly, producing the following per-frame observations:</p>
+<ul>
+<li>62 frames with a confirmed helmet detection (green bounding box)</li>
+<li>53 frames with a bare-head / no-helmet detection (red bounding box)</li>
+<li>61 frames with a number plate detection (blue bounding box)</li>
+<li>42 plate observations yielding OCR text output</li>
+</ul>
+<p>These are per-frame counts, not unique-individual counts. No OCR accuracy claim is made and no registration-owner lookup is performed. Plate-to-motorcycle association requires a no-helmet prediction and a plate to co-occur within exactly one matched tracked motorcycle in the same frame; ambiguous multi-vehicle overlaps are rejected.</p>
+</div>
+
+<!-- FIG 4 — Real detection screenshots — FULL WIDTH -->
+<div class="full fig nb">
+  <img src="C:\Users\diksh\.gemini\antigravity\brain\c9a73195-a573-4e28-a74b-6de307155925\report_imgs\fig4_detections.png" style="width:100%;max-height:370px;object-fit:contain"/>
+  <div class="fig-cap">Fig. 4.&nbsp; Sample annotated output frames from the edge AI pipeline. Each sub-figure shows actual bounding-box detections produced by the respective model on real dashcam or fleet footage from Bengaluru. Boxes are drawn by the pipeline and carried through to the evidence viewer in the government portal.</div>
+</div>
+
+<div>
+<h3>D. Extended Model Probe Results</h3>
+<div class="tbl-wrap nb">
+<div class="tbl-cap">Table IV.&nbsp; Per-Model Probe Results (26 September 2026)</div>
+<table>
+<thead><tr><th>Model</th><th>Test Images</th><th>Matched Boxes</th><th>False Positives</th><th>Misses</th></tr></thead>
+<tbody>
+<tr><td>Zebra Crossing (YOLOv8m)</td><td>12</td><td>18</td><td>0</td><td>0</td></tr>
+<tr><td>Traffic Sign (YOLO-World default)</td><td>12</td><td>4</td><td>9</td><td>9</td></tr>
+<tr><td>Traffic Sign (supervised checkpoint)</td><td>12</td><td>1</td><td>0</td><td>12</td></tr>
+<tr><td>Plate / OCR (publisher demo image)</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+<tr><td>Accident (publisher demo images)</td><td>3</td><td>4</td><td>—</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<p>Traffic sign detection using the default YOLO-World configuration is weak at approximately 30.8% precision and recall on German-sign test images. This is documented as experimental and insufficient for operational deployment. The zebra-crossing model is the strongest of the extended suite, making it the only extended model currently appropriate for field use without further fine-tuning.</p>
+</div>
+
+<div>
+<h3>E. Backend and Frontend Validation</h3>
+<p>Automated testing covered 44 backend (pytest) and 28 AI unit tests, all passing. Both React portal production builds completed without errors. Fourteen live API read routes were verified. Five demonstration incidents — accident, road damage, pothole, waterlogging, and no-helmet violation — populate the government action pages with linked annotated video and 27 associated detected frame references, all verified to decode correctly. Alert synchronization, byte-range video streaming, and post-restart job recovery were confirmed functional.</p>
+<div class="tbl-wrap nb">
+<div class="tbl-cap">Table V.&nbsp; Automated Test and Build Results</div>
+<table>
+<thead><tr><th>Test Suite / Check</th><th>Count</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td>Backend tests (pytest)</td><td>44</td><td>All passed</td></tr>
+<tr><td>AI unit tests</td><td>28</td><td>All passed</td></tr>
+<tr><td>Citizen portal production build</td><td>1</td><td>Passed</td></tr>
+<tr><td>Government portal production build</td><td>1</td><td>Passed</td></tr>
+<tr><td>Live API read routes verified</td><td>14</td><td>All responded</td></tr>
+<tr><td>Evidence frame images decoded</td><td>42</td><td>All decoded successfully</td></tr>
+<tr><td>Annotated MP4 files H.264 verified</td><td>11</td><td>All confirmed</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- FIG 5 — Portal wireframes — FULL WIDTH -->
+<div class="full fig nb">
+  <img src="C:\Users\diksh\.gemini\antigravity\brain\c9a73195-a573-4e28-a74b-6de307155925\report_imgs\fig5_portals.png" style="width:100%;max-height:295px;object-fit:contain"/>
+  <div class="fig-cap">Fig. 5.&nbsp; Wireframe representations of the two web portals. (a) Citizen Portal: interactive Leaflet.js incident map with hazard markers and a sidebar listing active incidents by type and status. (b) Government Portal: Detected Issues Map alongside a structured case table with type, status, and date columns for case management.</div>
+</div>
+
+<!-- ============ V. DEPLOYMENT ============ -->
+<div class="full"><h2>V. System Deployment and Configuration</h2></div>
+
+<div>
+<h3>A. Setup Procedure</h3>
+<p>The entire system is reproducible from a clean Git clone using a single setup script that creates the Python virtual environment, installs all dependencies from <code>requirements.txt</code>, runs <code>npm ci</code> for both portals, generates <code>.env</code> credential files, downloads versioned media assets, verifies SHA-256 checksums, and seeds five demonstration map alerts into the database.</p>
+
+<div class="algo nb">
+<div class="algo-hd">Listing 1:&nbsp; Setup and Launch Commands (Windows PowerShell)</div>
+<code>
+# Full setup: virtual env, dependencies, assets, model weights<br/>
+python scripts/setup.py --with-models --with-originals<br/><br/>
+# Configuration only, no media download<br/>
+python scripts/setup.py --config-only<br/><br/>
+# Launch all three services simultaneously<br/>
+powershell -NoProfile -ExecutionPolicy Bypass -File ./start.ps1<br/><br/>
+# Run full twelve-model AI suite on a fleet dashcam video<br/>
+.venv/Scripts/python.exe -m edge_ai.suite --source dashcam.mp4 --road-bottom 0.68
+</code>
+</div>
+
+<h3>B. Technology Stack</h3>
+<p>Backend: Python 3.10, FastAPI, SQLAlchemy, SQLite. Inference: ONNX Runtime, Ultralytics YOLOv8, YOLO-World, FastALPR, OpenCV. Frontend: React 18, Vite, Leaflet.js, OSRM (default routing), TomTom (optional live-traffic routing). CI/CD: GitHub Actions running AI tests, asset installer validation, backend pytest, ESLint linting, and production builds on every push.</p>
+</div>
+
+<div>
+<h3>C. Service Endpoint Reference</h3>
+<div class="tbl-wrap nb">
+<div class="tbl-cap">Table VI.&nbsp; REST Service Endpoints</div>
+<table>
+<thead><tr><th>Service</th><th>Address / Route</th><th>Access Level</th></tr></thead>
+<tbody>
+<tr><td>Citizen Portal</td><td>http://127.0.0.1:5173</td><td>Public</td></tr>
+<tr><td>Government Portal</td><td>http://127.0.0.1:5174</td><td>Authenticated (JWT)</td></tr>
+<tr><td>API Documentation</td><td>http://127.0.0.1:8000/docs</td><td>Public</td></tr>
+<tr><td>Event Ingestion</td><td>POST /api/v1/events</td><td>Government token</td></tr>
+<tr><td>Issue Management</td><td>GET/PATCH /api/v1/government/issues</td><td>Government token</td></tr>
+<tr><td>Fleet Operations</td><td>/api/v1/government/fleet/*</td><td>Government token</td></tr>
+<tr><td>Media Streaming</td><td>/api/v1/media/*</td><td>Government token</td></tr>
+<tr><td>Citizen Alerts</td><td>GET /api/v1/alerts</td><td>Public</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>D. Route Scoring Function</h3>
+<p>The citizen route planner integrates with OSRM (default, no live traffic) or TomTom (optional, live-traffic ETAs) and scores candidate routes using the following weighted function, where the balance parameter &alpha; is selected by the user via a slider in the portal:</p>
+<div class="eq"><span>Score(<em>R</em>) = &alpha;&thinsp;&middot;&thinsp;<em>T</em>(<em>R</em>) + (1&nbsp;&minus;&nbsp;&alpha;)&thinsp;&middot;&thinsp;<em>H</em>(<em>R</em>)</span><span class="eq-n">(1)</span></div>
+<p>Here <em>T</em>(<em>R</em>) is the normalized travel time for route <em>R</em>, <em>H</em>(<em>R</em>) is the normalized active hazard density along the route, and &alpha;&thinsp;&isin;&thinsp;[0,&thinsp;1] is the user-controlled time-versus-safety balance weight. The route with the lowest score is presented as the recommended option.</p>
+</div>
+
+<!-- ============ VI. CONCLUSION ============ -->
+<div class="full"><h2>VI. Conclusion and Future Work</h2></div>
+
+<div>
+<p>This paper presented an AI-powered mobile urban intelligence platform that repurposes public transport fleet vehicles as distributed road health sensors. By combining a twelve-model local edge inference suite, a FastAPI backend with full audit trails, and dual citizen and government React portals, the platform provides an end-to-end pipeline from fleet dashcam footage to government case management — all deployable locally without cloud infrastructure.</p>
+<p>Eight of the twelve detection tasks produced candidates on the test clip. The full automated test suite passed (44 backend + 28 AI tests), both production builds were clean, and all 42 evidence frames decoded successfully. The crosswalk model achieved 100% precision and recall on its upstream subset, and the helmet-plus-plate pipeline produced frame-level evidence suitable for government review. These results validate the core integration of the platform as a functional whole.</p>
+<p>Limitations to be addressed in future work include:</p>
+<ul>
+<li><strong>Real-time throughput:</strong> The CPU-only pipeline takes approximately 7.4 seconds per frame under full model load. GPU acceleration or selective task scheduling is required for near-real-time fleet operation.</li>
+<li><strong>India-specific model validation:</strong> The crosswalk, traffic sign, and helmet models were trained primarily on non-Indian data. Fine-tuning on locally sourced and labeled Indian road footage is required before operational deployment.</li>
+<li><strong>Live GPS integration:</strong> All demonstration GPS coordinates are assigned simulations. Production deployments must feed real telemetry via the event ingestion API using on-bus GPS hardware.</li>
+<li><strong>Traffic sign accuracy:</strong> The current YOLO-World sign localizer achieved only 30.8% precision and recall. A supervised model trained on Indian road signage categories is needed.</li>
+<li><strong>Browser automation testing:</strong> Visual click-through validation, responsive layout checks, and geolocation permission handling remain manual steps without browser automation infrastructure.</li>
+</ul>
+</div>
+
+<div>
+<p>Future extensions will explore federated deployment across municipal zones, integration with emergency dispatch APIs for automatic notification of critical incidents, and a mobile companion application supporting offline citizen report drafting. The fleet monitoring module will be extended with predictive maintenance alerts based on accumulated road hazard exposure per bus route. The route planning engine will incorporate pedestrian and cyclist hazard weighting as additional scoring dimensions.</p>
+<p>The proposed platform establishes a practical, open, and reproducible baseline for AI-assisted urban road management that can be adopted, validated against local road and traffic conditions, and extended by municipal governments of any scale.</p>
+</div>
+
+<!-- ============ REFERENCES ============ -->
+<div class="full">
+<hr/>
+<h2>References</h2>
+<div class="refs">
+<p>[1]&nbsp; J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, "You Only Look Once: Unified, Real-Time Object Detection," in <em>Proc. IEEE CVPR</em>, pp. 779–788, 2016.</p>
+<p>[2]&nbsp; ONNX Community, "Open Neural Network Exchange (ONNX) Runtime and Specification," [Online]. Available: https://onnx.ai/, 2023.</p>
+<p>[3]&nbsp; S. Ramirez, "FastAPI: High Performance, Easy to Code, Ready for Production," [Online]. Available: https://fastapi.tiangolo.com/, 2023.</p>
+<p>[4]&nbsp; Meta Platforms, Inc., "React: A JavaScript Library for Building User Interfaces," [Online]. Available: https://react.dev/, 2024.</p>
+<p>[5]&nbsp; M. Fox, A. Kumar, and P. Singh, "Stereo-CNN Pothole Segmentation for Autonomous Vehicles," <em>IEEE Trans. Intelligent Transportation Systems</em>, vol. 22, no. 4, pp. 2134–2145, 2021.</p>
+<p>[6]&nbsp; D. Arya, H. Maeda, S. K. Ghosh, D. Toshniwal, and Y. Sekimoto, "Global Road Damage Detection: State-of-the-Art Solutions," in <em>Proc. IEEE Int. Conf. Big Data</em>, pp. 5533–5539, 2020.</p>
+<p>[7]&nbsp; A. Majumder, R. Das, and S. Roy, "Multi-Stage Helmet and Violation Detection for Indian Traffic," <em>Pattern Recognition Letters</em>, vol. 144, pp. 1–9, 2021.</p>
+<p>[8]&nbsp; M. N. Nafi, J. Khan, A. Watts, and M. Hossain, "A Survey on Traffic Violation Detection Systems Using Deep Learning," <em>IEEE Access</em>, vol. 10, pp. 41107–41128, 2022.</p>
+<p>[9]&nbsp; IBM Corporation, "IBM Intelligent Operations Center for Smarter Cities — Technical Overview," IBM Redbooks, 2022.</p>
+<p>[10]&nbsp; mySociety, "FixMyStreet: Report, View, or Discuss Local Problems," [Online]. Available: https://www.fixmystreet.com/, 2024.</p>
+<p>[11]&nbsp; T. Cheng, L. Song, Y. Ge, W. Liu, X. Wang, and Y. Shan, "YOLO-World: Real-Time Open-Vocabulary Object Detection," in <em>Proc. IEEE/CVF CVPR</em>, 2024.</p>
+<p>[12]&nbsp; A. Kandare, "FastALPR: Fast and Lightweight Automatic License Plate Recognition," [Online]. Available: https://github.com/ankandrew/fast-alpr, 2024.</p>
+<p>[13]&nbsp; J. Terven and D. Cordova-Esparza, "A Comprehensive Review of YOLO Architectures in Computer Vision," <em>Machine Learning and Knowledge Extraction</em>, vol. 5, no. 4, pp. 1680–1716, 2023.</p>
+<p>[14]&nbsp; G. Jocher et al., "YOLOv5 by Ultralytics," [Online]. Available: https://github.com/ultralytics/yolov5, 2020.</p>
+<p>[15]&nbsp; V. Badrinarayanan, A. Kendall, and R. Cipolla, "SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation," <em>IEEE Trans. Pattern Analysis and Machine Intelligence</em>, vol. 39, no. 12, pp. 2481–2495, 2017.</p>
+</div>
+</div>
+
+</div><!-- end cols -->
+</div><!-- end page -->
+</body>
+</html>

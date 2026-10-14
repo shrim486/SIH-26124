@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { Activity } from "lucide-react";
 
 const navItems = [
   {
@@ -45,11 +46,11 @@ function Layout() {
         <div className="sidebar-header">
 
           <div className="brand-mark">
-            UI
+            <Activity size={21} aria-hidden="true" />
           </div>
 
           <div>
-            <h2>UrbanIQ</h2>
+            <h2>GenMaps</h2>
             <span>
               Government Command Center
             </span>

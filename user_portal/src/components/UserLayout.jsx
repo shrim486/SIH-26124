@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   Activity,
-  Bell,
   FileWarning,
   Home,
   Map,
@@ -23,14 +22,14 @@ export default function UserLayout({ children }) {
       icon: Home,
     },
     {
+      path: "/plan-route",
+      label: "Plan a route",
+      icon: Route,
+    },
+    {
       path: "/map",
       label: "Live Map",
       icon: Map,
-    },
-    {
-      path: "/plan-route",
-      label: "Plan Route",
-      icon: Route,
     },
     {
       path: "/report",
@@ -55,7 +54,7 @@ export default function UserLayout({ children }) {
           </div>
 
           <div>
-            <strong>UrbanIQ</strong>
+            <strong>GenMaps</strong>
             <span>Citizen Portal</span>
           </div>
 
@@ -69,16 +68,14 @@ export default function UserLayout({ children }) {
 
 
         {/* NAVIGATION */}
-        <nav>
-          <p className="nav-label">NAVIGATION</p>
-
+        <nav className="sidebar-nav" aria-label="Citizen navigation">
           {links.map(({ path, label, icon: Icon }) => (
             <NavLink
               key={path}
               to={path}
               end={path === "/"}
               className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
+                `nav-item nav-link ${isActive ? "active" : ""}`
               }
               onClick={() => setMobileOpen(false)}
             >
@@ -89,12 +86,7 @@ export default function UserLayout({ children }) {
 
 
           {/* GOVERNMENT PORTAL */}
-          <p
-            className="nav-label"
-            style={{
-              marginTop: "28px",
-            }}
-          >
+          <p className="nav-label nav-label-secondary">
             AUTHORITY ACCESS
           </p>
 
@@ -151,18 +143,6 @@ export default function UserLayout({ children }) {
             <h1>Citizen portal</h1>
           </div>
 
-          <div className="topbar-actions">
-
-            <NavLink to="/alerts" className="notification-button" aria-label="View alerts">
-              <Bell size={20} />
-              <span />
-            </NavLink>
-
-            <div className="user-avatar">
-              C
-            </div>
-
-          </div>
         </header>
 
 

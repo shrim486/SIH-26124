@@ -20,6 +20,12 @@ from app.services.analysis_evidence import (
     prepare_alert_evidence,
 )
 from app.services.alert_service import ensure_event_alert
+from app.services.attached_clip_records import (
+    ATTACHED_CLIPS_BY_ID,
+    clip_frame_assets,
+    clip_summary,
+    clip_video_path,
+)
 from pydantic import BaseModel, Field, AwareDatetime
 from sqlalchemy.exc import IntegrityError
 
@@ -31,8 +37,8 @@ router = APIRouter(
 )
 
 
-def catalog():
-    root = OUTPUTS_ROOT.resolve()
+def catalog(root: str | None = None):
+    root = Path(root).resolve() if root else OUTPUTS_ROOT.resolve()
     media = {}
 
     def asset(path):
@@ -175,7 +181,10 @@ def get_media(identity: str):
         path,
         media_type=media_type,
         filename=path.name,
-        headers={"Cache-Control": "private, no-store"},
+        headers={
+            "Cache-Control": "private, no-store",
+            "Accept-Ranges": "bytes",
+        },
         content_disposition_type="inline",
     )
 
@@ -371,6 +380,41 @@ def incident_evidence(event_id: int, db=Depends(get_db)):
     event = db.get(Event, event_id)
     if not link or not event:
         raise HTTPException(404, "No linked detection video for this incident")
+    event_metadata = json.loads(event.event_metadata or "{}")
+    attached_clip_id = event_metadata.get("attached_map_clip_id")
+    if attached_clip_id:
+        video = clip_video_path(attached_clip_id)
+        clip = ATTACHED_CLIPS_BY_ID.get(attached_clip_id)
+        if not video or not clip:
+            raise HTTPException(404, "The linked video is no longer available")
+        summary = clip_summary(attached_clip_id)
+        output = summary.get("output") or summary.get("input") or {}
+        frames = [
+            {
+                "image_url": f"/government/analysis-results/attached-clips/{attached_clip_id}/images/{asset['path'].name}",
+                "time_seconds": asset["time_seconds"],
+                "labels": [],
+                "kind": "saved_frame",
+            }
+            for asset in clip_frame_assets(attached_clip_id)
+        ]
+        return {
+            "id": attached_clip_id,
+            "name": video.parent.name.replace("_", " "),
+            "video_url": f"/government/analysis-results/attached-clips/{attached_clip_id}/video",
+            "frames": frames,
+            "frames_processed": summary.get("frames_processed", 0),
+            "duration_seconds": output.get("duration_seconds"),
+            "boxes_across_frames": summary.get("boxes_across_frames"),
+            "camera": summary.get("camera", "unknown"),
+            "tasks": summary.get("tasks") or [clip["alert_type"]],
+            "source_info": summary.get("source_info"),
+            "detection_segments": [],
+            "incident_frames": {},
+            "incident": event_details(event),
+            "evidence_segment": None,
+            "start_seconds": 0,
+        }
     item, _ = resolve_run(link.run_id)
     segment = next(
         (s for s in item["detection_segments"] if s["id"] == link.segment_id), None
@@ -383,3 +427,39 @@ def incident_evidence(event_id: int, db=Depends(get_db)):
     item["incident"] = event_details(event)
     item["evidence_segment"] = segment
     return item
+
+
+@router.get("/attached-clips/{video_id}/video")
+def get_attached_clip_video(video_id: str):
+    path = clip_video_path(video_id)
+    if path is None:
+        raise HTTPException(404, "Attached video not found")
+    return FileResponse(
+        path,
+        media_type="video/mp4",
+        filename=path.name,
+        headers={
+            "Cache-Control": "private, no-store",
+            "Accept-Ranges": "bytes",
+        },
+        content_disposition_type="inline",
+    )
+
+
+@router.get("/attached-clips/{video_id}/images/{filename}")
+def get_attached_clip_image(video_id: str, filename: str):
+    if Path(filename).name != filename:
+        raise HTTPException(404, "Image not found")
+    asset = next(
+        (item for item in clip_frame_assets(video_id) if item["path"].name == filename),
+        None,
+    )
+    if asset is None:
+        raise HTTPException(404, "Image not found")
+    media_type = "image/png" if asset["path"].suffix.lower() == ".png" else "image/jpeg"
+    return FileResponse(
+        asset["path"],
+        media_type=media_type,
+        headers={"Cache-Control": "private, no-store"},
+        content_disposition_type="inline",
+    )

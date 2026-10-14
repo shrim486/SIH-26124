@@ -14,5 +14,5 @@ export default defineConfig({
       allow: [fileURLToPath(new URL('.', import.meta.url)), fileURLToPath(new URL('../shared', import.meta.url))],
     },
   },
-  resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'react-leaflet', 'leaflet'] },
+  resolve: { dedupe: ['react', 'react-dom', 'react-router-dom', 'lucide-react', 'react-leaflet', 'leaflet'] },
 })

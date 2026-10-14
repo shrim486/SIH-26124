@@ -279,7 +279,7 @@ export default function GovernmentDashboard() {
     governmentApi.logout();
 
     navigate(
-      "/government-login",
+      "/",
       { replace: true }
     );
   };
@@ -338,7 +338,7 @@ export default function GovernmentDashboard() {
    * PAGE TITLES
    */
   const pageTitle = {
-    dashboard: "Urban Intelligence Command Center",
+    dashboard: "GenMaps Command Center",
     map: "Live Intelligence",
     alerts: "Safety Alerts",
     fleet: "Fleet Monitoring",
@@ -353,10 +353,10 @@ export default function GovernmentDashboard() {
       "Live incidents detected across the monitored urban network.",
 
     alerts:
-      "Review active safety incidents detected by the UrbanIQ network.",
+      "Review active safety incidents detected by the GenMaps network.",
 
     fleet:
-      "Monitor the public transport fleet connected to the UrbanIQ network.",
+      "Monitor the public transport fleet connected to the GenMaps network.",
 
     video:
       "View saved detection videos and images, or analyze another traffic video.",
@@ -605,7 +605,7 @@ export default function GovernmentDashboard() {
 
             <p>
               All recent incidents detected by
-              the UrbanIQ monitoring network.
+              the GenMaps monitoring network.
             </p>
           </div>
 
@@ -871,7 +871,7 @@ export default function GovernmentDashboard() {
           </div>
 
           <strong>
-            Initializing UrbanIQ
+            Initializing GenMaps
           </strong>
 
           <span>
@@ -917,7 +917,7 @@ export default function GovernmentDashboard() {
 
           <div>
             <strong>
-              UrbanIQ
+              GenMaps
             </strong>
 
             <span>
@@ -994,7 +994,7 @@ export default function GovernmentDashboard() {
             </strong>
 
             <span>
-              UrbanIQ monitoring active
+              GenMaps monitoring active
             </span>
           </div>
 
@@ -1038,7 +1038,7 @@ export default function GovernmentDashboard() {
           <div className="gov-topbar-title">
 
             <span>
-              URBAN INTELLIGENCE
+              GENMAPS
             </span>
 
             <strong>
@@ -1184,7 +1184,7 @@ export default function GovernmentDashboard() {
                 </strong>
 
                 <span>
-                  UrbanIQ government monitoring network is active
+                  GenMaps government monitoring network is active
                 </span>
 
               </div>

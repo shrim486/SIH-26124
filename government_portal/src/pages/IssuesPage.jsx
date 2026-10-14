@@ -59,8 +59,8 @@ export default function IssuesPage({category = 'all'}) {
     finally {mutating.current = false; setSaving(false);}
   }
   return <div className="page-shell operations civic-ui">
-    <div className="page-header"><div><p className="eyebrow">Government response</p><h1>{titles[category]}</h1>
-      <p>Review map locations and evidence, assign a status and track resolution.</p></div><button disabled={busy || saving} onClick={load}>{busy ? 'Refreshing…' : 'Refresh'}</button></div>
+    <header className="civic-heading"><div><span className="civic-kicker">Government response</span><h1>{titles[category]}</h1>
+      <p>Review locations, evidence and status.</p></div><button className="civic-refresh-button" disabled={busy || saving} onClick={load}>{busy ? 'Refreshing…' : 'Refresh'}</button></header>
     <div className="stats-grid">{statuses.map(value => <div key={value} className="stat-card"><span>{label(value)}</span><strong>{items.filter(item => item.status === value).length}</strong></div>)}</div>
     <div className="filter-bar"><label>Status <select value={status} onChange={e => {setStatus(e.target.value);setSelected(null);}}><option value="active">Active alerts</option><option value="all">All recorded issues</option>{statuses.map(value => <option key={value} value={value}>{label(value)}</option>)}</select></label>
       <label>Issue <select value={type} onChange={e => {setType(e.target.value);setSelected(null);}}><option value="all">All issue types</option>{[...new Set(items.map(i => i.event_type))].map(value => <option key={value} value={value}>{incidentName({event_type:value})}</option>)}</select></label>
@@ -68,8 +68,8 @@ export default function IssuesPage({category = 'all'}) {
       {bus && <Link to="/detections">Show issues from all vehicles</Link>}</div>
     {showDemo && items.some(item => item.is_demo) && <p className="operations-note">Assigned coordinates and times are for map visualization; recording locations are unverified.</p>}
     {error && <p className="error-panel" role="alert">{error}</p>}{message && <p role="status" className="operations-note">{message}</p>}
-    <div className="operations-grid"><section className="panel"><h2>{visible.length} issues on map</h2><OperationsMap items={visible} selected={current?.id} onSelect={setSelected} />
-      <p className="operations-note">Grey pins are resolved or closed. Select a pin or open a row below.</p></section>
+    <div className="operations-grid"><section className="panel"><h2>{visible.length} issues on map</h2><OperationsMap items={visible} selected={current?.id} onSelect={setSelected} includeMapClipPins={type==='all'&&status==='active'&&showDemo&&!bus} />
+      <p className="operations-note">Grey pins are resolved. Unverified clip locations are excluded from issue totals.</p></section>
       <section className="panel issue-detail" id="selected-case" aria-label="Selected issue">{!current ? <><h2>Select an issue</h2><p>The requested issue is not in the current results. Choose a row or change the filters.</p></> : <>
         <h2>{incidentName(current)}</h2><p className="civic-meta">{incidentReference(current)}</p><p>{label(current.status)} · {current.severity || 'medium'} priority</p>
         <p>{incidentPlace(current)}<br />{current.is_demo ? 'Map location assigned for visualization' : label(current.location_source)}</p>

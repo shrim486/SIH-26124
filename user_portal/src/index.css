@@ -180,8 +180,8 @@ button {
 /* MAIN */
 
 .user-main {
-  margin-left: 245px;
-  width: calc(100% - 245px);
+  margin-left: 258px;
+  width: calc(100% - 258px);
   min-height: 100vh;
 }
 
@@ -986,7 +986,7 @@ button {
   }
 }
 /* ============================================================
-   URBANIQ USER PORTAL
+   GENMAPS USER PORTAL
    ============================================================ */
 
 .user-page {
@@ -1511,7 +1511,7 @@ button {
 
 }
 /* ============================================================
-   URBANIQ GOVERNMENT AUTHORITY CONSOLE
+   GENMAPS GOVERNMENT AUTHORITY CONSOLE
    Dedicated namespace: gov-
 ============================================================ */
 

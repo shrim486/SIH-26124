@@ -3,6 +3,8 @@ import { governmentApi } from "./api/governmentApi";
 import { NavLink, Outlet } from "react-router-dom";
 import useGovernmentAccess from '../../shared/useGovernmentAccess';
 import {
+  Ambulance,
+  Activity,
   LayoutDashboard,
   Construction,
   ShieldAlert,
@@ -11,6 +13,8 @@ import {
   Bus,
   BarChart3,
   Film,
+  Menu,
+  X,
 } from "lucide-react";
 
 const navItems = [
@@ -30,6 +34,11 @@ const navItems = [
     to: "/violations",
     label: "Traffic Violations",
     icon: ShieldAlert,
+  },
+  {
+    to: "/ambulance-assist",
+    label: "Smart Ambulance Assist",
+    icon: Ambulance,
   },
   {
     to: "/accidents",
@@ -63,6 +72,12 @@ function Layout() {
   const {status,check,signOut} = useGovernmentAccess(access);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  function handleSignOut() {
+    signOut();
+    const userPortalUrl = (import.meta.env.VITE_USER_PORTAL_URL || 'http://127.0.0.1:5173').replace(/\/+$/, '');
+    window.location.assign(`${userPortalUrl}/`);
+  }
   async function login(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -75,7 +90,7 @@ function Layout() {
   }
   if (status==='checking') return <main className="civic-signin civic-ui"><p role="status">Checking government session…</p></main>;
   if (status!=='verified') return (
-    <main className="civic-signin civic-ui"><span className="civic-kicker">UrbanIQ · Government portal</span>
+    <main className="civic-signin civic-ui"><span className="civic-kicker">GenMaps · Government portal</span>
       <h1>Government sign in</h1>
       <form onSubmit={login} style={{ display: 'grid', gap: 16 }}>
         <label>Username <input name="username" autoComplete="username" required /></label>
@@ -89,18 +104,26 @@ function Layout() {
     <div className="app-shell">
 
       {/* SIDEBAR */}
-      <aside className="sidebar">
+      <aside id="government-navigation" className={`sidebar ${mobileOpen ? 'open' : ''}`}>
 
         {/* BRAND */}
         <div className="sidebar-header">
           <div className="brand-mark">
-            UI
+            <Activity size={22} />
           </div>
 
           <div className="brand-text">
-            <h2>UrbanIQ</h2>
+            <h2>GenMaps</h2>
             <span>Government portal</span>
           </div>
+          <button
+            type="button"
+            className="government-sidebar-close"
+            aria-label="Close navigation"
+            onClick={() => setMobileOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
 
 
@@ -120,6 +143,7 @@ function Layout() {
                 className={({ isActive }) =>
                   `nav-item ${isActive ? "active" : ""}`
                 }
+                onClick={() => setMobileOpen(false)}
               >
                 <Icon
                   size={19}
@@ -137,7 +161,7 @@ function Layout() {
 
         {/* FOOTER */}
         <div className="sidebar-footer">
-          <button onClick={signOut}>Sign out</button>
+          <button onClick={handleSignOut}>Sign out</button>
 
           <div className="network-label">
             Fleet operations
@@ -154,9 +178,30 @@ function Layout() {
 
       </aside>
 
+      {mobileOpen && (
+        <button
+          type="button"
+          className="sidebar-overlay government-sidebar-overlay"
+          aria-label="Close navigation"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
       {/* MAIN CONTENT */}
       <main className="main-panel">
+        <div className="government-mobile-nav">
+          <button
+            type="button"
+            className="government-mobile-menu"
+            aria-label="Open navigation"
+            aria-controls="government-navigation"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen(true)}
+          >
+            <Menu size={19} />
+            <span>Menu</span>
+          </button>
+        </div>
         <Outlet />
       </main>
 

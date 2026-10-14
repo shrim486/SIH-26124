@@ -4,6 +4,16 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.core.government_auth import create_government_token
 from app.api.routes import analysis_results as api
+from app.services import attached_clip_records as attached
+
+
+def test_clip_summary_handles_missing_summary_file(tmp_path):
+    folder = tmp_path / "demo_run"
+    folder.mkdir()
+    (folder / "annotated.mp4").write_bytes(b"video")
+    with patch.dict(attached.ATTACHED_CLIPS_BY_ID, {"demo-clip": {"video_id": "demo-clip", "video_file": "demo_run/annotated.mp4"}}, clear=False):
+        with patch.object(attached, "ATTACHED_CLIPS_ROOT", tmp_path):
+            assert attached.clip_summary("demo-clip") == {}
 
 
 def test_results_persist_on_disk_and_require_government_auth(tmp_path):

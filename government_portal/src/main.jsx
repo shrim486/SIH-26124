@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 import './App.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import RoadIssuesPage from './pages/RoadIssuesPage';
 import ViolationsPage from './pages/ViolationsPage';
@@ -13,6 +13,7 @@ import FleetPage from './pages/FleetPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import DetectionsPage from './pages/DetectionsPage';
 import AnalysisResultsPage from './pages/AnalysisResultsPage';
+import AmbulanceAssistPage from './pages/AmbulanceAssistPage';
 import '../../shared/portal-polish.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -29,6 +30,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="alerts" element={<AlertsPage />} />
           <Route path="fleet" element={<FleetPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="ambulance-assist" element={<AmbulanceAssistPage />} />
+          <Route path="signal-violations" element={<Navigate replace to="/violations" />} />
           <Route path="*" element={<p>Page not found.</p>} />
         </Route>
       </Routes>

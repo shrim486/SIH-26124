@@ -120,6 +120,9 @@ export const governmentApi = {
     return request(`/government/violations/${id}/status`, {method:'PATCH',body:JSON.stringify({status})});
   },
   getDetectionIncidents() { return request('/government/analysis-results/incidents'); },
+  planEmergencyRoute(payload, signal) {
+    return request('/user/route', {method: 'POST', body: JSON.stringify(payload), signal});
+  },
   // ACCIDENTS
   getAccidents(params = {}) {
     const query = new URLSearchParams();

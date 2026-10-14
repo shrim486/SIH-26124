@@ -236,4 +236,4 @@ def get_processed_video(job_id: str):
     if not job or job.get("status") != "complete" or not video.is_file():
         raise HTTPException(status_code=404, detail="Processed video is not ready")
     return FileResponse(video, media_type="video/mp4", filename="annotated.mp4",
-                        headers={'Cache-Control':'private, no-store', 'X-Content-Type-Options':'nosniff'})
+                        headers={'Cache-Control':'private, no-store', 'X-Content-Type-Options':'nosniff', 'Accept-Ranges':'bytes'})

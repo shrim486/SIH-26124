@@ -1,4 +1,4 @@
-﻿# AI-Powered Urban Intelligence
+﻿# GenMaps
 
 FastAPI backend, React citizen and government portals, and local machine-learning video analysis with annotated H.264 output.
 
@@ -14,7 +14,7 @@ FastAPI backend, React citizen and government portals, and local machine-learnin
 - Fleet monitoring also supports protected live camera previews from an RTSP/HTTP/USB edge connector, with optional pothole boxes. See [camera connection setup](docs/LIVE_CAMERAS.md). A physical camera/feed must be connected before any live footage appears.
 - Government pages verify the session with the API; evidence, camera previews and video analysis require government credentials. See [access controls and verification](docs/GOVERNMENT_ACCESS.md).
 
-AI inference runs locally after asset setup. Reviewed detections can be published with supplied coordinates; continuous camera GPS ingestion and live traffic estimates require connected data sources. Model quality varies: see [implementation and validation status](docs/EXTENDED_MODELS.md). Dataset download/check/train/evaluate commands are included; downloaded data stays outside Git.
+AI inference runs locally after asset setup. Reviewed detections can be published with supplied coordinates; continuous camera GPS ingestion requires connected feeds. Live traffic-aware route estimates are available through the optional TomTom routing provider; default OSRM route times do not include live traffic. Model quality varies: see [implementation and validation status](docs/EXTENDED_MODELS.md). Dataset download/check/train/evaluate commands are included; downloaded data stays outside Git.
 
 ## Setup after cloning
 
@@ -56,7 +56,7 @@ macOS/Linux: open three terminals from the repository root and run one command i
 
 SQLite tables are created at API startup. Government login uses the credentials in local `backend/.env`. These are local development instructions, not production deployment configuration.
 
-Citizen **[Plan Route](http://127.0.0.1:5173/plan-route)** compares road-network alternatives using active accident, waterlogging, road-damage and traffic reports. Enter pickup/drop-off, add up to three ordered stops, and choose a balance between estimated driving time and reported hazards. Assigned map positions are excluded unless explicitly selected. See [routing setup and limits](docs/ROUTE_PLANNER.md).
+Citizen **[Plan Route](http://127.0.0.1:5173/plan-route)** compares road alternatives against active mapped incident reports. The optional TomTom routing provider adds traffic-aware ETAs and traffic sections on the selected route; default OSRM estimates do not include live traffic. Enter pickup/drop-off, add up to three ordered stops, and choose a balance between driving time and reported hazards. Assigned map positions are excluded unless explicitly selected. See [routing setup and limits](docs/ROUTE_PLANNER.md).
 
 Government cases are available at [Detected Issues Map](http://127.0.0.1:5174/detections), with separate road, accident and violation pages. Each issue and government alert displays its annotated video and detected images. The [Videos & Images](http://127.0.0.1:5174/ai-results) menu collects evidence for actionable map issues. Resolve or reopen a case to update its citizen alert. Saved analyses remain available through the analysis API and the existing citizen **Video Analysis** tools. See [government operations and fleet setup](docs/GOVERNMENT_OPERATIONS.md).
 

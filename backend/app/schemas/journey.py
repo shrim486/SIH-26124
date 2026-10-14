@@ -15,6 +15,6 @@ class JourneyRequest(BaseModel):
     origin: JourneyPoint
     destination: JourneyPoint
     stops: list[JourneyPoint] = Field(default_factory=list, max_length=3)
-    preference: Literal['balanced', 'fastest', 'lower_risk'] = 'balanced'
+    preference: Literal['balanced', 'fastest', 'lower_risk'] = 'lower_risk'
     max_extra_minutes: int = Field(default=15, ge=0, le=60)
     include_assigned: bool = False

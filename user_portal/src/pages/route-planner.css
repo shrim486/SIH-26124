@@ -3,45 +3,46 @@
 .route-planner h2 { font-size: 19px; margin: 0 0 14px; }
 .rp-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
 .rp-heading p { margin: 0; color: #a0b6cc; line-height: 1.6; }
-.rp-heading > svg { color: #38bdf8; flex-shrink: 0; }
-.rp-heading .rp-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #55cafb; letter-spacing: .12em; }
+.rp-heading > svg { color: #76b9b0; flex-shrink: 0; }
+.rp-heading .rp-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #8ec9d8; letter-spacing: .12em; }
 .rp-layout { display: grid; grid-template-columns: minmax(320px, .85fr) minmax(0, 1.5fr); gap: 20px; align-items: start; }
-.rp-panel, .rp-map-panel { border: 1px solid #244059; border-radius: 16px; background: #0c1b2b; min-width: 0; }
+.rp-panel, .rp-map-panel { border: 1px solid rgba(152, 171, 210, 0.22); border-radius: 18px; background: linear-gradient(180deg, rgba(13, 25, 39, 0.96), rgba(16, 21, 35, 0.96)); min-width: 0; box-shadow: 0 18px 40px rgba(10, 18, 31, 0.26); }
 .rp-panel { padding: 22px; }
 .rp-form { display: flex; flex-direction: column; gap: 20px; }
-.route-planner button { border: 1px solid #34516e; border-radius: 8px; background: #142b40; color: #e3f2ff; padding: 9px 12px; line-height: 1.4; }
-.route-planner button:hover:not(:disabled) { background: #203d56; border-color: #38bdf8; }
+.route-planner button { border: 1px solid rgba(125, 158, 196, 0.4); border-radius: 10px; background: linear-gradient(180deg, rgba(19, 37, 54, 0.98), rgba(15, 22, 33, 0.98)); color: #edf7ff; padding: 9px 12px; line-height: 1.4; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+.route-planner button:hover:not(:disabled) { background: linear-gradient(180deg, rgba(31, 52, 76, 0.98), rgba(20, 35, 49, 0.98)); border-color: rgba(121, 200, 234, 0.7); transform: translateY(-1px); }
 .route-planner button:disabled { opacity: .5; cursor: not-allowed; }
-.route-planner button:focus-visible, .route-planner input:focus-visible, .route-planner select:focus-visible, .route-planner a:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 3px; }
-.route-planner button[aria-pressed="true"] { border-color: #38bdf8; background: #103c53; }
+.route-planner button:focus-visible, .route-planner input:focus-visible, .route-planner select:focus-visible, .route-planner a:focus-visible { outline: 2px solid #8ed8f4; outline-offset: 3px; }
+.route-planner button[aria-pressed="true"] { border-color: rgba(104, 211, 255, 0.85); background: linear-gradient(180deg, rgba(14, 55, 70, 0.95), rgba(17, 28, 46, 0.96)); }
 .rp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .rp-actions button, .rp-add-stop, .rp-plan { display: flex; align-items: center; justify-content: center; gap: 7px; }
 .rp-actions button { font-size: 12px; flex: 1; }
 .rp-place > label, .rp-preferences > label:not(.rp-checkbox) { display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 600; }
 .rp-place > label { margin-bottom: 8px; }
-.route-planner input:not([type="checkbox"]), .route-planner select { min-width: 0; width: 100%; background: #091724; border: 1px solid #34516e; border-radius: 8px; padding: 10px; color: #eaf2ff; font-size: 13px; }
+.route-planner input:not([type="checkbox"]), .route-planner select { min-width: 0; width: 100%; background: rgba(7, 18, 30, 0.94); border: 1px solid rgba(112, 147, 182, 0.42); border-radius: 10px; padding: 10px 12px; color: #edf7ff; font-size: 13px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
 .route-planner input::placeholder { color: #8aa3ba; }
 .rp-search { display: flex; gap: 5px; }
 .rp-search input { flex: 1; }
 .rp-search button { font-size: 12px; flex-shrink: 0; }
-.rp-confirmed { color: #74ddb8; display: block; font-size: 11px; margin-top: 7px; }
-.rp-place-results { list-style: none; padding: 6px; margin: 8px 0 0; background: #071624; border: 1px solid #34516e; border-radius: 8px; max-height: 240px; overflow: auto; }
+.rp-confirmed { color: #95e2c1; display: block; font-size: 11px; margin-top: 7px; }
+.rp-place-results { list-style: none; padding: 6px; margin: 8px 0 0; background: rgba(8, 19, 31, 0.96); border: 1px solid rgba(121, 160, 198, 0.35); border-radius: 10px; max-height: 240px; overflow: auto; }
 .rp-place-results li + li { margin-top: 5px; }
-.rp-place-results button { width: 100%; text-align: left; font-size: 12px; }
-.rp-stop { border-left: 2px solid #38bdf8; padding-left: 12px; }
+.rp-place-results button { width: 100%; text-align: left; font-size: 12px; border-radius: 8px; }
+.rp-stop { border-left: 2px solid rgba(104, 211, 255, 0.95); padding-left: 12px; }
 .rp-stop-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; font-size: 11px; }
 .rp-stop-tools label { flex: 1; white-space: nowrap; color: #acc4d9; }
 .rp-stop-tools label input { width: 52px !important; padding: 5px !important; }
 .rp-stop-tools button { font-size: 11px; padding: 6px 9px; }
-.rp-preferences { display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #244059; padding-top: 20px; }
-.rp-checkbox { display: flex; gap: 9px; align-items: flex-start; color: #c0d5e8; font-size: 12px; line-height: 1.5; }
-.rp-checkbox input { accent-color: #38bdf8; margin-top: 3px; flex-shrink: 0; }
-.route-planner .rp-plan { padding: 13px; font-weight: 700; background: #086da6; border-color: #279ddd; }
-.route-planner .rp-plan:hover:not(:disabled) { background: #0781bb; }
+.rp-preferences { display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(142, 169, 203, 0.2); padding-top: 20px; }
+.rp-preferences > label:not(.rp-checkbox) { color: #dfeffc; }
+.rp-checkbox { display: flex; gap: 9px; align-items: flex-start; color: #d7e7f7; font-size: 12px; line-height: 1.5; }
+.rp-checkbox input { accent-color: #63d2b0; margin-top: 3px; flex-shrink: 0; }
+.route-planner .rp-plan { padding: 13px; font-weight: 700; background: linear-gradient(135deg, #1c7cc2, #3db5b0); border-color: rgba(136, 218, 234, 0.7); }
+.route-planner .rp-plan:hover:not(:disabled) { background: linear-gradient(135deg, #2690d5, #44bfb6); }
 .rp-note { font-size: 12px; line-height: 1.65; color: #9db6cc; margin: 0; }
-.rp-error { font-size: 13px; color: #fecaca; background: #452332; padding: 10px; border-radius: 8px; margin: 8px 0 0; }
+.rp-error { font-size: 13px; color: #ffd7df; background: linear-gradient(180deg, rgba(89, 35, 49, 0.9), rgba(58, 28, 35, 0.9)); padding: 10px; border-radius: 8px; margin: 8px 0 0; border: 1px solid rgba(177, 101, 117, 0.45); }
 .rp-map-panel { overflow: hidden; }
-.rp-alert-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:14px 16px; border-top:1px solid #244059; background:#102131; }
+.rp-alert-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:14px 16px; border-top:1px solid rgba(148, 173, 207, 0.18); background: linear-gradient(180deg, rgba(18, 31, 44, 0.95), rgba(14, 22, 34, 0.95)); }
 .rp-alert-toolbar > div { flex:1 1 220px; }
 .rp-alert-toolbar strong,.rp-alert-toolbar small { display:block; }
 .rp-alert-toolbar small { color:#a6bfd4; margin-top:5px; font-size:11px; }
@@ -49,11 +50,12 @@
 .rp-alert-toolbar .rp-checkbox { flex-basis:100%; }
 .rp-alert-note { padding:10px 16px; }
 .rp-alert-pins { display:flex; gap:8px; overflow:auto; padding:0 16px 16px; }
-.rp-alert-pins button { flex:0 0 190px; text-align:left; padding:12px; }
+.rp-alert-pins button { flex:0 0 190px; text-align:left; padding:12px; background: linear-gradient(180deg, rgba(23, 34, 51, 0.96), rgba(18, 28, 41, 0.96)); border-radius: 12px; }
+.rp-alert-pins button:hover { border-color: rgba(139, 215, 255, 0.8); }
 .rp-alert-pins strong,.rp-alert-pins span,.rp-alert-pins small { display:block; }
 .rp-alert-pins span { color:#a6bfd4; font-size:11px; margin-top:6px; line-height:1.5; }
-.rp-alert-pins small { color:#7dd3fc; margin-top:6px; }
-.rp-map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; min-height: 59px; color: #bbd1e3; font-size: 12px; }
+.rp-alert-pins small { color:#88dff3; margin-top:6px; }
+.rp-map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; min-height: 59px; color: #bbd1e3; font-size: 12px; background: rgba(13, 23, 35, 0.9); }
 .rp-map-toolbar button { flex-shrink: 0; font-size: 12px; }
 .rp-map { width: 100%; height: 540px; z-index: 0; }
 .rp-map.rp-picking { cursor: crosshair; }
@@ -65,31 +67,31 @@
 .rp-map-legend span:nth-child(2) { color: #fca5a5; }
 .rp-map-legend span:nth-child(3) { color: #fcd34d; }
 .rp-map-legend span:nth-child(4) { color: #c4b5fd; }
-.rp-attribution { display: block; line-height: 1.8; border-top: 1px solid #244059; }
+.rp-attribution { display: block; line-height: 1.8; border-top: 1px solid rgba(148, 173, 207, 0.16); background: rgba(13, 23, 35, 0.75); }
 .rp-attribution a { color: #8bd6fb; }
 .rp-results { margin-top: 28px; display: flex; flex-direction: column; gap: 16px; }
 .rp-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .rp-section-heading h2 { margin: 0; }
 .rp-section-heading span { font-size: 12px; color: #9db6cc; }
 .rp-route-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
-.route-planner .rp-route { display: flex; flex-direction: column; gap: 12px; text-align: left; padding: 20px; border-radius: 14px; background: #0c1b2b; color: #a9c3da; font-size: 12px; }
-.route-planner .rp-route.rp-selected { border: 2px solid #38bdf8; padding: 19px; background: linear-gradient(140deg, #103750, #0c1b2b); }
+.route-planner .rp-route { display: flex; flex-direction: column; gap: 12px; text-align: left; padding: 20px; border-radius: 16px; background: linear-gradient(180deg, rgba(23, 36, 53, 0.95), rgba(14, 20, 33, 0.95)); color: #a9c3da; font-size: 12px; border: 1px solid rgba(136, 161, 196, 0.2); box-shadow: 0 16px 28px rgba(11, 16, 28, 0.16); }
+.route-planner .rp-route.rp-selected { border: 1px solid rgba(110, 215, 255, 0.7); padding: 19px; background: linear-gradient(140deg, rgba(17, 57, 77, 0.96), rgba(17, 25, 40, 0.98)); box-shadow: 0 20px 34px rgba(19, 92, 117, 0.18); }
 .rp-route-name { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #e3f2ff; font-size: 13px; }
-.rp-route-name b { font-size: 10px; padding: 3px 7px; border-radius: 4px; background: #38bdf8; color: #042438; }
+.rp-route-name b { font-size: 10px; padding: 3px 7px; border-radius: 4px; background: linear-gradient(135deg, #9ad8ff, #6ad5ab); color: #12304b; }
 .rp-route > strong { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: 26px; color: #f0f9ff; }
 .rp-route strong small { font-size: 11px; font-weight: 400; color: #acc4d9; }
-.rp-road-names { border-top: 1px solid #2a435a; padding-top: 12px; margin-top: auto; line-height: 1.6; }
-.rp-notice { margin: 0; border-left: 3px solid #eab308; border-radius: 5px; padding: 12px 14px; background: #302b20; color: #f6dea2; font-size: 12px; line-height: 1.6; }
+.rp-road-names { border-top: 1px solid rgba(143, 167, 198, 0.18); padding-top: 12px; margin-top: auto; line-height: 1.6; }
+.rp-notice { margin: 0; border-left: 3px solid #f2bf60; border-radius: 8px; padding: 12px 14px; background: linear-gradient(180deg, rgba(58, 46, 28, 0.9), rgba(49, 35, 23, 0.9)); color: #f7e8ad; font-size: 12px; line-height: 1.6; border-right: 1px solid rgba(199, 162, 82, 0.25); }
 .rp-detail-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; }
 .rp-detail-grid .rp-checkbox, .rp-detail-grid .rp-notice { margin-top: 14px; }
-.rp-issue { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #244059; }
+.rp-issue { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(140, 170, 201, 0.18); }
 .rp-issue > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .rp-issue strong { font-size: 14px; }
 .rp-issue span, .rp-issue small { font-size: 12px; color: #a6bfd4; line-height: 1.5; }
 .rp-issue button { font-size: 11px; flex-shrink: 0; }
 .rp-legs { padding-left: 21px; margin: 20px 0; }
 .rp-legs li { padding: 0 0 20px 6px; }
-.rp-legs li::marker { color: #38bdf8; }
+.rp-legs li::marker { color: #6ec4ff; }
 .rp-legs strong, .rp-legs span, .rp-legs small { display: block; overflow-wrap: anywhere; }
 .rp-legs strong { font-size: 13px; line-height: 1.6; }
 .rp-legs span, .rp-legs small { font-size: 12px; color: #a6bfd4; margin-top: 6px; line-height: 1.5; }

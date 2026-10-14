@@ -18,16 +18,19 @@ from app.api.routes import (
 
 @asynccontextmanager
 async def lifespan(app):
-    from app.db.database import Base, engine, ensure_sqlite_schema_compatibility
+    from app.db.database import Base, engine, ensure_sqlite_schema_compatibility, SessionLocal
     from app import models
+    from app.services.attached_clip_records import ensure_attached_clip_alerts
     Base.metadata.create_all(bind=engine)
     ensure_sqlite_schema_compatibility()
+    with SessionLocal() as db:
+        ensure_attached_clip_alerts(db)
     yield
 
 
 app = FastAPI(
-    title="UrbanIQ API",
-    description="Urban Intelligence Platform API",
+    title="GenMaps API",
+    description="GenMaps urban intelligence platform API",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -115,7 +118,7 @@ app.include_router(camera_live.router, prefix=API_PREFIX)
 @app.get("/")
 def root():
     return {
-        "message": "UrbanIQ API is running",
+        "message": "GenMaps API is running",
         "status": "online",
     }
 

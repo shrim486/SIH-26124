@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, CircleMarker, Popup, Polyline, Tooltip, useMap } from 'react-leaflet';
 import { hasCoordinates } from '../../../shared/incidentPresentation';
+import { LiveTrafficLayer, TrafficMapControl, useLiveTraffic } from '../../../shared/LiveTrafficLayer';
+import { MapBaseLayer } from '../../../shared/MapLayers';
+import MapViewControls from '../../../shared/MapViewControls';
 import 'leaflet/dist/leaflet.css';
 
 function trailParts(points){
@@ -27,12 +30,15 @@ function View({buses,selected,history,follow,fitKey}){
 }
 export default function FleetMap({buses,selected,onSelect,history=[],follow=false,fitKey=0}){
   const mapped=buses.filter(hasCoordinates),parts=trailParts(history);
-  return <MapContainer center={[12.9716,77.5946]} zoom={12} className="civic-map fleet-map">
-    <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+  const traffic=useLiveTraffic();
+  return <div className="fleet-map-frame"><MapContainer center={[12.9716,77.5946]} zoom={12} zoomControl={false} className="civic-map fleet-map">
+    <MapBaseLayer/>
+    <LiveTrafficLayer enabled={traffic.enabled} reportStatus={traffic.reportStatus}/>
+    <MapViewControls/>
     <View buses={mapped} selected={selected} history={history} follow={follow} fitKey={fitKey}/>
     {parts.map((points,index)=><Polyline key={index} positions={points} pathOptions={{color:'#66b6cf',weight:4,opacity:.7}}/>)}
     {mapped.map(bus=><CircleMarker key={bus.id} center={[bus.latitude,bus.longitude]} radius={bus.id===selected?12:8} pathOptions={{color:'#fff',weight:2,fillOpacity:1,fillColor:bus.online?'#52b89a':'#8e9fb4'}} eventHandlers={{click:()=>onSelect(bus.id,false)}}>
       <Tooltip>{bus.bus_number} · {bus.route_number||'Route unassigned'}</Tooltip><Popup><strong>{bus.bus_number}</strong><p>{bus.connection_status.replaceAll('_',' ')}</p><p>{new Date(bus.last_seen).toLocaleString('en-IN')}</p><button onClick={()=>onSelect(bus.id)}>Open vehicle details</button></Popup>
     </CircleMarker>)}
-  </MapContainer>;
+  </MapContainer><TrafficMapControl enabled={traffic.enabled} status={traffic.status} onToggle={traffic.toggle}/></div>;
 }

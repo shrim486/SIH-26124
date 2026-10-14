@@ -16,8 +16,10 @@ class Settings(BaseSettings):
     GOVERNMENT_PASSWORD: str
 
     ROUTING_BASE_URL: str = 'https://routing.openstreetmap.de/routed-car'
+    ROUTING_PROVIDER: str = 'osrm'
+    TOMTOM_API_KEY: str = ''
     GEOCODING_BASE_URL: str = 'https://photon.komoot.io'
-    MAP_USER_AGENT: str = 'UrbanIQ-RoutePlanner/1.0 (https://github.com/shrim486/SIH-26124)'
+    MAP_USER_AGENT: str = 'GenMaps-RoutePlanner/1.0 (https://github.com/shrim486/SIH-26124)'
 
     model_config = SettingsConfigDict(
         env_file=".env",

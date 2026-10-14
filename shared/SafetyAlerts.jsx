@@ -5,7 +5,7 @@ import { incidentName,incidentPlace,incidentReference,incidentDate,evidencePath,
 
 const types=[['all','All issues'],['helmet_violation','No helmet'],['violations','Traffic violations'],['waterlogging','Waterlogging'],['accident','Accidents'],['pothole','Potholes'],['road_damage','Road damage'],['traffic','Traffic conditions']];
 const matches=(item,type)=>type==='all'||(type==='violations'?['traffic_violation','triple_riding','rash_driving'].includes(item.alert_type):type==='traffic'?['congestion','bottleneck'].includes(item.alert_type):item.alert_type===type);
-export default function SafetyAlerts({loadRecords,updateAlert,updateIssue,renderEvidence,government=false,title='Alerts & incidents'}) {
+export default function SafetyAlerts({loadRecords,updateAlert,updateIssue,renderEvidence,government=false,title='Alerts & incidents',subtitle='Search reports or filter by issue type.'}) {
   const query=new URLSearchParams(window.location.search);
   const [data,setData]=useState(null),[type,setType]=useState(query.get('type')||'all'),[archive,setArchive]=useState(query.get('archive')==='true');
   const [search,setSearch]=useState(''),[selected,setSelected]=useState(Number(query.get('alert'))||null),[expanded,setExpanded]=useState(null),[fitKey,setFitKey]=useState(0);
@@ -33,7 +33,7 @@ export default function SafetyAlerts({loadRecords,updateAlert,updateIssue,render
     finally{mutating.current=false;if(mounted.current){setAction(null);setBusy(false);}}
   }
   return <section className="civic-ui civic-records">
-    <header className="civic-heading"><div><span className="civic-kicker">Bengaluru · Road reports</span><h1>{title}</h1><p>One incident list, with matching locations, status and evidence.</p></div>
+    <header className="civic-heading"><div><span className="civic-kicker">Bengaluru · Road reports</span><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
       <button onClick={refresh} disabled={busy||action!==null}><RefreshCw size={16}/>{busy?'Updating…':'Refresh'}</button></header>
     <div className="civic-toolbar"><label className="civic-search"><Search size={17}/><input aria-label="Search incidents" placeholder="Search issue, location or reference" value={search} onChange={e=>setSearch(e.target.value)}/></label>
       <label>Records <select value={archive?'archive':'active'} disabled={action!==null} onChange={e=>{setArchive(e.target.value==='archive');setSelected(null);setExpanded(null);}}><option value="active">Active alerts</option><option value="archive">Resolved / dismissed</option></select></label></div>
@@ -42,13 +42,14 @@ export default function SafetyAlerts({loadRecords,updateAlert,updateIssue,render
     <div className="civic-section-line"><span><strong>{visible.length}</strong> recorded alerts · <strong>{mapped.length}</strong> mapped{visible.length!==mapped.length&&` · ${visible.length-mapped.length} awaiting coordinates`}</span><small>{data?`Updated ${new Date(data.updated_at).toLocaleTimeString('en-IN')}`:'Loading…'}</small></div>
     <div className="civic-records-grid"><section className="civic-panel civic-map-sticky"><div className="civic-panel-heading"><h2>Incident locations</h2><button onClick={()=>{setSelected(null);setFocusIncident(null);setFitKey(value=>value+1);}}>Show all</button></div>
       <RecordsMap items={visible} selected={focused?.id} onSelect={locate} government={government} fitKey={fitKey}/>
-      <p className="civic-map-caption">Open a map pin to view its own video and images. Records awaiting coordinates stay in the list.</p></section>
+      <p className="civic-map-caption">Select a pin to review its report, location and linked evidence. {visible.length!==mapped.length?'Unmapped reports remain in the list.':''}</p></section>
       <div className="civic-alert-list">{!visible.length&&<div className="civic-panel civic-empty"><Bell size={26}/><h2>{busy?'Loading records…':'No matching alerts'}</h2><p>Choose another filter or check back after a new report.</p></div>}
         {visible.map(item=><article key={item.id} id={`record-${item.id}`} className={`civic-panel civic-alert ${focused?.id===item.id?'is-selected':''}`}>
           <div className="civic-alert-heading"><span className="civic-issue-dot" style={{background:issueColour(item.alert_type)}}/><h2>{incidentName(item)}</h2><span className={`civic-priority ${item.severity}`}>{item.severity||'medium'}</span></div>
-          <p className="civic-location">{incidentPlace(item)}</p><p className="civic-meta">{incidentDate(item)} · {incidentReference(item)}</p>
+          <p className="civic-location">{incidentPlace(item)}</p>
+          <p className="civic-meta">{hasCoordinates(item)?`${item.latitude.toFixed(6)}, ${item.longitude.toFixed(6)} · `:'Coordinates pending · '}{incidentDate(item)} · {incidentReference(item)}</p>
+          {item.is_demo&&<p className="civic-meta">Assigned map location; recording location unverified.</p>}
           <div className="civic-status-line"><span>{(item.issue_status||'open').replaceAll('_',' ')}</span>{!item.active&&<span>Alert archived</span>}{!hasCoordinates(item)&&<span>Coordinates pending</span>}</div>
-          <details className="civic-record-details"><summary>Location & recording details</summary><p>{hasCoordinates(item)?`${item.latitude.toFixed(6)}, ${item.longitude.toFixed(6)}`:'Coordinates have not been supplied.'}</p><p>{item.is_demo?'Map location and time assigned for visualization; recording location unverified.':`Location source: ${(item.location_source||'supplied coordinates').replaceAll('_',' ')}`}</p></details>
           <div className="civic-actions"><a className="civic-primary-link" href={`${prefix}${evidencePath(item)}`}>{item.evidence_available?'Open video & images':'Open issue details'}<ArrowUpRight size={14}/></a>
             <button disabled={!hasCoordinates(item)} onClick={()=>{setSelected(item.id);document.querySelector('.civic-map-sticky')?.scrollIntoView({behavior:'smooth',block:'center'});}}><MapPin size={14}/>Locate</button>
             {government&&renderEvidence&&item.evidence_available&&<button onClick={()=>setExpanded(expanded===item.id?null:item.id)}>{expanded===item.id?'Hide preview':'Preview evidence'}</button>}</div>

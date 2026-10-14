@@ -1,8 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, CircleMarker, Popup, Tooltip, useMap } from 'react-leaflet';
 import { incidentName, incidentPlace, incidentDate, evidencePath, hasCoordinates } from './incidentPresentation';
 import { alertMarkerStyle } from './alertMapStyle';
 import AlertMapLegend from './AlertMapLegend';
+import { LiveTrafficLayer, TrafficMapControl, useLiveTraffic } from './LiveTrafficLayer';
+import { MapBaseLayer } from './MapLayers';
+import MapViewControls from './MapViewControls';
 import 'leaflet/dist/leaflet.css';
 
 export { issueColour } from './alertMapStyle';
@@ -22,16 +25,21 @@ function View({items,selected,fitKey}) {
 export default function RecordsMap({items,selected,onSelect=()=>{},government=false,fitKey=0}) {
   const points=items.filter(hasCoordinates);
   const prefix=government ? '' : (import.meta.env.VITE_GOVERNMENT_PORTAL_URL || 'http://127.0.0.1:5174');
-  return <><MapContainer center={[12.9716,77.5946]} zoom={12} className="civic-map">
-    <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+  const traffic=useLiveTraffic();
+  return <div className="civic-map-frame"><MapContainer center={[12.9716,77.5946]} zoom={12} zoomControl={false} className="civic-map">
+    <MapBaseLayer/>
+    <LiveTrafficLayer enabled={traffic.enabled} reportStatus={traffic.reportStatus}/>
+    <MapViewControls/>
     <View items={points} selected={selected} fitKey={fitKey} />
     {points.map(item=><CircleMarker key={item.id} center={[item.latitude,item.longitude]} radius={selected===item.id ? 15 : 11}
-      pathOptions={alertMarkerStyle(item,selected===item.id)} eventHandlers={{click:()=>onSelect(item.id)}}>
+      pathOptions={alertMarkerStyle(item,selected===item.id)}
+      eventHandlers={{click:()=>onSelect(item.id)}}>
       <Tooltip className="alert-map-tooltip" direction="top" offset={[0,-12]}>{incidentName(item)} · {item.severity || 'medium'} priority</Tooltip>
-      <Popup><strong>{incidentName(item)}</strong><p>{incidentPlace(item)}</p><p>{incidentDate(item)}</p>
+      <Popup className="civic-alert-popup" minWidth={300} maxWidth={430}><strong>{incidentName(item)}</strong><p>{incidentPlace(item)}</p>
+        <p>{item.latitude.toFixed(6)}, {item.longitude.toFixed(6)}</p><p>{incidentDate(item)}</p>
         {item.is_demo && <p>Assigned map location; recording location unverified.</p>}
-        <a className="civic-popup-link" href={`${prefix}${evidencePath(item)}`}>{item.evidence_available ? 'Open video & images' : 'Open issue details'}{!government && ' · government sign-in'}</a>
+        <a className="civic-popup-link" href={`${prefix}${evidencePath(item)}`}>{item.evidence_available ? 'Open video & images' : 'Open issue details'}{!government && item.evidence_available && ' · government sign-in'}</a>
       </Popup>
     </CircleMarker>)}
-  </MapContainer><AlertMapLegend items={points}/></>;
+  </MapContainer><TrafficMapControl enabled={traffic.enabled} status={traffic.status} onToggle={traffic.toggle}/><AlertMapLegend items={points}/></div>;
 }

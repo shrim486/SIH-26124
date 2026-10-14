@@ -1,5 +1,5 @@
 /* =========================================================
-   UrbanIQ — App.css
+   GenMaps — App.css
    Government Command Center.
    Tokens live in index.css. Class names match Layout.jsx
    and DashboardPage.jsx exactly.
@@ -1000,7 +1000,7 @@ details summary {
   }
 }
 /* =====================================================
-   URBANIQ DASHBOARD
+   GENMAPS DASHBOARD
    ===================================================== */
 
 .dashboard-page {

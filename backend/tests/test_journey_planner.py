@@ -100,7 +100,7 @@ def test_assigned_points_require_explicit_inclusion(system, roads):
     client = system[0]
     event(client, assigned=True)
     data, selected = plan(client)
-    assert data['excluded_assigned_count'] == 1 and not data['issues']
+    assert data['excluded_assigned_count'] == 1 + len(journey.ATTACHED_CLIP_POINTS) and not data['issues']
     assert selected['duration_minutes'] == 10
     data, selected = plan(client, include_assigned=True)
     assert selected['duration_minutes'] == 16 and data['issues'][0]['is_demo']
@@ -177,6 +177,7 @@ def test_failed_detours_keep_available_routes(system, monkeypatch):
 
 def test_provider_cache_and_bad_geometry(monkeypatch):
     calls = []
+    monkeypatch.setattr(provider.settings, 'ROUTING_PROVIDER', 'osrm')
     def get(url, **kwargs):
         calls.append(url)
         return httpx.Response(200, json={'code': 'Ok', 'routes': [deepcopy(FAST)]}, request=httpx.Request('GET', url))

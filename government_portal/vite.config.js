@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
-  resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'react-leaflet', 'leaflet'] },
+  resolve: { dedupe: ['react', 'react-dom', 'react-router-dom', 'lucide-react', 'react-leaflet', 'leaflet'] },
   server: {
     fs: {
       strict: true,

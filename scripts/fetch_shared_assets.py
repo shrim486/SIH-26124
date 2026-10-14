@@ -19,7 +19,7 @@ def download(entry, cache):
     for attempt in range(3):
         try:
             print(f'Downloading {entry["name"]} ({entry["bytes"] / 1024**2:.1f} MiB)...', flush=True)
-            request = Request(entry['url'], headers={'User-Agent': 'UrbanIQ-AssetSetup/1.0'})
+            request = Request(entry['url'], headers={'User-Agent': 'GenMaps-AssetSetup/1.0'})
             with urlopen(request, timeout=90) as response, temporary.open('wb') as output:
                 received = 0
                 report_at = 50 * 1024**2

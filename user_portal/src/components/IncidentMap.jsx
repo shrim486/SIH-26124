@@ -1,7 +1,6 @@
 import React from "react";
 import {
   MapContainer,
-  TileLayer,
   Marker,
   Popup,
   useMap,
@@ -12,6 +11,9 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { sampleText } from '../../../shared/sampleText';
 import { incidentPlace } from '../../../shared/incidentPresentation';
+import { LiveTrafficLayer, TrafficMapControl, useLiveTraffic } from '../../../shared/LiveTrafficLayer';
+import { MapBaseLayer } from '../../../shared/MapLayers';
+import MapViewControls from '../../../shared/MapViewControls';
 
 
 /* ============================================================
@@ -130,11 +132,14 @@ export default function IncidentMap({
   focusId = null,
 }) {
 
-  const validEvents = events.filter(
+  const traffic = useLiveTraffic();
+
+  const liveEvents = events.filter(
     (event) =>
       event.latitude != null && event.longitude != null && Number.isFinite(Number(event.latitude)) &&
       Number.isFinite(Number(event.longitude))
   );
+  const validEvents = liveEvents;
 
 
   return (
@@ -149,6 +154,7 @@ export default function IncidentMap({
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={12}
+        zoomControl={false}
         scrollWheelZoom={true}
         style={{
           width: "100%",
@@ -157,10 +163,9 @@ export default function IncidentMap({
         }}
       >
 
-        <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <MapBaseLayer/>
+        <LiveTrafficLayer enabled={traffic.enabled} reportStatus={traffic.reportStatus}/>
+        <MapViewControls/>
 
 
         <MapViewController events={validEvents} focusId={focusId} />
@@ -170,7 +175,7 @@ export default function IncidentMap({
           let metadata = event.event_metadata || {};
           if (typeof metadata === 'string') { try { metadata = JSON.parse(metadata); } catch { metadata = {}; } }
           if (!metadata || typeof metadata !== 'object') metadata = {};
-          const demo = event.status === 'demo' || metadata.is_demo;
+          const assignedLocation = event.status === 'demo' || metadata.is_demo || event.is_map_attachment;
           const eventLabel = String(event.event_type || 'Urban incident').replaceAll('_', ' ');
 
           const latitude = Number(event.latitude);
@@ -208,28 +213,22 @@ export default function IncidentMap({
               eventHandlers={{ add: e => { if (String(event.id) === String(focusId)) e.target.openPopup(); } }}
             >
 
-              <Popup>
+              <Popup className="civic-alert-popup" minWidth={280} maxWidth={360}>
 
                 <div style={{ minWidth: "190px" }}>
 
-                  <strong>
-                    {eventLabel}
-                  </strong>
+                  <strong>{eventLabel}</strong>
                   <p>Incident #{event.id}</p>
                   <p>Status: {['open','in_progress','resolved','closed'].includes(event.status) ? event.status.replaceAll('_',' ') : 'open'}</p>
                   <p>{incidentPlace({latitude,longitude,location_name:metadata.location_name})}</p>
-                  {event.timestamp && <p>{demo ? 'Assigned time' : 'Reported time'}: {new Date(event.timestamp).toLocaleString('en-IN')}</p>}
+                  {event.timestamp && <p>{assignedLocation ? 'Assigned time' : 'Reported time'}: {new Date(event.timestamp).toLocaleString('en-IN')}</p>}
                   {metadata.description && <details><summary>Recording details</summary><p>{sampleText(metadata.description)}</p></details>}
-                  {demo && <p>Map location assigned for visualization; recording location unverified.</p>}
-                  {metadata.evidence_available && <p>Video and detected frames are linked to incident #{event.id} in the government portal.</p>}
-                  {metadata.evidence_available && <a href={`${import.meta.env.VITE_GOVERNMENT_PORTAL_URL || 'http://127.0.0.1:5174'}/ai-results?incident=${event.id}`} target="_blank" rel="noreferrer">Government video evidence (sign-in)</a>}
+                  {assignedLocation && <p>Assigned map location; recording location unverified.</p>}
+                  {metadata.evidence_available && <a href={`${import.meta.env.VITE_GOVERNMENT_PORTAL_URL || 'http://127.0.0.1:5174'}/ai-results?incident=${event.id}`} target="_blank" rel="noreferrer">Open video & images · government sign-in</a>}
 
                   <br />
 
-                  <span>
-                    Severity:{" "}
-                    {event.severity || "unknown"}
-                  </span>
+                  <span>Severity: {event.severity || "unknown"}</span>
 
                   <br />
 
@@ -269,6 +268,7 @@ export default function IncidentMap({
 
       </MapContainer>
 
+      <TrafficMapControl enabled={traffic.enabled} status={traffic.status} onToggle={traffic.toggle}/>
 
       <div className="map-overlay">
 
@@ -277,18 +277,16 @@ export default function IncidentMap({
         LIVE
 
         <span>
-          {validEvents.length} incidents
+          {liveEvents.length} live incidents{unverifiedLocationCount > 0 ? ` · ${unverifiedLocationCount} locations unverified` : ''}
         </span>
 
       </div>
 
 
-      {validEvents.length === 0 && (
+      {liveEvents.length === 0 && unverifiedLocationCount === 0 && (
         <div className="map-empty-overlay">
-          <strong>No incidents on map</strong>
-          <span>
-            New detections will appear here automatically.
-          </span>
+          <strong>No live incidents on map</strong>
+          <span>New detections will appear here automatically.</span>
         </div>
       )}
 

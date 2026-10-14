@@ -98,15 +98,9 @@ export default function ReportIssue() {
   }
 
   return (
-    <div className="form-page">
-      <div className="form-intro">
-        <span className="section-kicker">CITIZEN REPORTING</span>
-        <h2>Report a road or safety issue</h2>
-        <p>
-          Help UrbanIQ build a clearer picture of what is happening
-          on the streets.
-        </p>
-      </div>
+    <div className="page-shell civic-ui citizen-report-page">
+      <header className="civic-heading"><div><span className="civic-kicker">Road reports</span>
+        <h1>Report an issue</h1><p>Tell us what you saw and where it happened.</p></div></header>
 
       {success && (
         <div className="success-banner">
@@ -170,7 +164,7 @@ export default function ReportIssue() {
           />
         </label>
 
-        <div className="location-box">
+        <div className="location-box citizen-location-fields">
           <div className="location-heading">
             <div className="location-icon">
               <MapPin size={20} />
@@ -178,9 +172,6 @@ export default function ReportIssue() {
 
             <div>
               <strong>Incident location</strong>
-              <p>
-                Use your current GPS location or enter coordinates.
-              </p>
             </div>
           </div>
 
@@ -193,7 +184,7 @@ export default function ReportIssue() {
             <Crosshair size={17} />
             {locating
               ? "Finding location..."
-              : "Use my current location"}
+              : "Use current location"}
           </button>
 
           <div className="form-grid">

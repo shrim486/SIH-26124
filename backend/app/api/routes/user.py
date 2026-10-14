@@ -1,10 +1,14 @@
 from math import radians, sin, cos, sqrt, atan2
 import json
+from collections import Counter, defaultdict
+from functools import lru_cache
+from pathlib import Path
 from typing import Optional
 from datetime import datetime, timezone
 from sqlalchemy import or_
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -20,6 +24,146 @@ router = APIRouter(
     prefix="/user",
     tags=["Citizen"],
 )
+
+ATTACHED_MAP_CLIPS = {
+    'bellary-yelahanka-pothole': 'full_project_run_potholes/potholes_detected.mp4',
+    'bellary-hebbal-accident': 'bengaluru_accident_demo/annotated.mp4',
+    'mekhri-circle-road-damage': 'full_project_run_damaged_road/candidate.mp4',
+    'koramangala-ejipura-pothole': 'dashcam_more_sensitive/potholes_detected.mp4',
+    'orr-bellandur-congestion': 'demo_traffic/annotated.mp4',
+    'orr-marathahalli-congestion': 'demo_highway/annotated.mp4',
+    'old-madras-krpuram-waterlogging': 'demo_waterlogging/annotated.mp4',
+    'whitefield-hopefarm-road-damage': 'damaged_road_dashcam/candidate.mp4',
+}
+ATTACHED_CLIPS_ROOT = Path(__file__).resolve().parents[4] / 'edge_ai' / 'outputs'
+
+
+def _clip_detection_summary(folder):
+    """Return compact, reviewable model observations saved with a clip."""
+    path = folder / 'detections.jsonl'
+    counts = Counter()
+    peaks = defaultdict(float)
+    moments = []
+    if path.is_file():
+        try:
+            with path.open(encoding='utf-8') as stream:
+                for line in stream:
+                    row = json.loads(line)
+                    detections = row.get('detections') or []
+                    labels = []
+                    confidence = 0.0
+                    for item in detections:
+                        label = item.get('label') or item.get('class_name') or item.get('detector')
+                        if not label:
+                            continue
+                        label = str(label).replace('_', ' ')
+                        counts[label] += 1
+                        labels.append(label)
+                        score = item.get('confidence')
+                        if isinstance(score, (int, float)):
+                            peaks[label] = max(peaks[label], float(score))
+                            confidence = max(confidence, float(score))
+                    traffic = row.get('traffic') or {}
+                    zones = traffic.get('zones') or {}
+                    traffic_labels = [str(name).replace('_', ' ') for name, zone in zones.items()
+                                      if isinstance(zone, dict) and zone.get('congestion_candidate')]
+                    if traffic.get('bottleneck_candidate'):
+                        traffic_labels.append('bottleneck candidate')
+                    for label in traffic_labels:
+                        counts[label] += 1
+                        labels.append(label)
+                    if labels:
+                        moments.append({
+                            'time_seconds': round(float(row.get('timestamp_seconds') or 0), 2),
+                            'candidate_count': len(labels),
+                            'labels': sorted(set(labels)),
+                            'peak_confidence': round(confidence, 3) if confidence else None,
+                        })
+        except (OSError, ValueError, TypeError):
+            counts.clear()
+            moments = []
+    moments.sort(key=lambda item: (item['candidate_count'], item['peak_confidence'] or 0), reverse=True)
+    return {
+        'candidate_observations': sum(counts.values()),
+        'findings': [
+            {'label': label, 'observations': count, 'peak_confidence': round(peaks[label], 3) or None}
+            for label, count in counts.most_common(8)
+        ],
+        'moments': moments[:6],
+    }
+
+
+@lru_cache(maxsize=1)
+def _attached_clip_catalog():
+    clips = []
+    for video_id, relative_path in ATTACHED_MAP_CLIPS.items():
+        video_path = (ATTACHED_CLIPS_ROOT / relative_path).resolve()
+        if not video_path.is_relative_to(ATTACHED_CLIPS_ROOT.resolve()) or not video_path.is_file():
+            continue
+        folder = video_path.parent
+        try:
+            summary = json.loads((folder / 'summary.json').read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            summary = {}
+        source_info = summary.get('source_info') or {}
+        input_info = summary.get('output') or summary.get('input') or {}
+        images = sorted({
+            path.name for pattern in ('preview*.jpg', 'frame_*.jpg', 'preview*.png')
+            for path in folder.glob(pattern) if path.is_file()
+        })[:8]
+        clips.append({
+            'video_id': video_id,
+            'video_url': f'/user/map-clips/{video_id}/video',
+            'title': video_id.replace('-', ' ').replace('_', ' ').title(),
+            'source_name': source_info.get('name') or Path(str(summary.get('source') or '').replace('\\', '/')).name or folder.name,
+            'source_url': source_info.get('url'),
+            'original_location': source_info.get('original_location') or 'Unknown',
+            'recorded_at': source_info.get('recorded_at'),
+            'location_note': source_info.get('location_note') or 'This clip is attached to a map point for browsing; recording coordinates and time have not been verified.',
+            'publisher_page': source_info.get('publisher_page'),
+            'tasks': summary.get('tasks') or [],
+            'camera': summary.get('camera') or 'unknown',
+            'duration_seconds': input_info.get('duration_seconds'),
+            'frames_processed': summary.get('frames_processed'),
+            'boxes_across_frames': summary.get('boxes_across_frames'),
+            'limitations': summary.get('limitations') or 'No detector summary was saved with this clip. Review the footage directly; no incident is verified from this video alone.',
+            'findings': _clip_detection_summary(folder),
+            'images': [
+                {'name': name, 'url': f'/user/map-clips/{video_id}/images/{name}'}
+                for name in images
+            ],
+        })
+    return clips
+
+
+@router.get('/map-clips')
+def list_map_clips():
+    """Browse the attached road videos and their saved model observations."""
+    return {'clips': _attached_clip_catalog()}
+
+
+@router.get('/map-clips/{video_id}/images/{filename}')
+def map_clip_image(video_id: str, filename: str):
+    relative_path = ATTACHED_MAP_CLIPS.get(video_id)
+    if relative_path is None or Path(filename).name != filename:
+        raise HTTPException(404, 'Image not found')
+    folder = (ATTACHED_CLIPS_ROOT / relative_path).resolve().parent
+    path = (folder / filename).resolve()
+    if not path.is_relative_to(ATTACHED_CLIPS_ROOT.resolve()) or not path.is_file() or path.suffix.lower() not in {'.jpg', '.jpeg', '.png'}:
+        raise HTTPException(404, 'Image is unavailable')
+    media_type = 'image/png' if path.suffix.lower() == '.png' else 'image/jpeg'
+    return FileResponse(path, media_type=media_type, headers={'Cache-Control': 'public, max-age=3600', 'Accept-Ranges': 'bytes'})
+
+
+@router.get('/map-clips/{video_id}/video')
+def map_clip_video(video_id: str):
+    relative_path = ATTACHED_MAP_CLIPS.get(video_id)
+    if relative_path is None:
+        raise HTTPException(404, 'Clip not found')
+    path = (ATTACHED_CLIPS_ROOT / relative_path).resolve()
+    if not path.is_relative_to(ATTACHED_CLIPS_ROOT.resolve()) or not path.is_file() or path.suffix.lower() != '.mp4':
+        raise HTTPException(404, 'Clip is unavailable')
+    return FileResponse(path, media_type='video/mp4', headers={'Cache-Control': 'public, max-age=3600', 'Accept-Ranges': 'bytes'})
 
 
 # ============================================================

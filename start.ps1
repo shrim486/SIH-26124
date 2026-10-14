@@ -17,10 +17,10 @@ function Test-ServiceIdentity($service) {
     try {
         if ($service.Name -eq 'backend') {
             $document = Invoke-RestMethod -Uri "http://127.0.0.1:$($service.Port)/openapi.json" -TimeoutSec 2
-            return $document.info.title -eq 'UrbanIQ API'
+            return $document.info.title -eq 'GenMaps API'
         }
         $page = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$($service.Port)/" -TimeoutSec 2
-        $expectedTitle = [regex]::Escape("$($service.Name)-portal")
+        $expectedTitle = [regex]::Escape('GenMaps')
         return $page.Content -match "<title>\s*$expectedTitle\s*</title>"
     } catch {
         return $false
